@@ -85,12 +85,12 @@ which is being processed by the scanner.
 */ 
         
         
-        DECLARE YOUR VARIABLES HERE IF NEEDED 
+     //   DECLARE YOUR VARIABLES HERE IF NEEDED 
         
                 
         while (1){ /* endless loop broken by token returns it will generate a warning */
                 
-        GET THE NEXT SYMBOL FROM THE INPUT BUFFER 
+ //       GET THE NEXT SYMBOL FROM THE INPUT BUFFER 
         
         c = b_getc(sc_buf);
 
@@ -98,26 +98,38 @@ which is being processed by the scanner.
               
 /* special cases or token driven processing */
 
-WRITE YOUR CODE FOR PROCESSING THE SPECIAL CASES HERE. 
-COMMENTS AND STRING LITERALS ARE ALSO PROCESSED HERE.
-
-WHAT FOLLOWS IS A PSEUDO CODE. YOU CAN USE switch STATEMENT
-INSTEAD OF if-else TO PROCESS THE SPECIAL CASES
-DO NOT FORGET TO COUNT THE PROGRAM LINES
-   
-             
-   IF (c == SOME CHARACTER)  
-                       ...
-       SKIP CHARACTER (FOR EXAMPLE SPACE)
-       continue;      
-       OR SET TOKEN (SET TOKEN CODE AND TOKEN ATTRIBUTE(IF AVAILABLE))
-       return t;
-   EXAMPLE:
+                
+  
    if (c == ' ') continue;
-   if (c == '{'){ t.code = RBR_T; /*no attribute */ return t; 
-   if (c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS */ return t;                 
-   ...
-   
+   if (c == '{'){ t.code = RBR_T; /*no attribute */ return t;}
+   if (c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }                
+   if (c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t;}
+   if (c == '}'){ t.code = LBR_T; return t;}
+   if (c == '/'){ t.code = ART_OP_T; t.attribute.arr_op = DIV; return t;}
+   if (c == '*'){ t.code = ART_OP_T; t.attribute.arr_op = MULT; return t;}
+   if (c == '('){ t.code = LPR_T; return t;}
+   if (c == ')'){ t.code = RBR_T; return t;}
+   if (c == ','){ t.code = COM_T; return t;}
+   if (c == ';'){ t.code = EOS_T; return t;}
+   if (c == '.'){ 
+	   b_setmark(sc_buf,b_getc_offset(sc_buf) - 1); // set mark, if there's something wrong after
+	   c = b_getc(sc_buf);
+	   if (c == 'A') { // Is good so far
+		   c = b_getc(sc_buf);
+		   if (c == 'N'){ // Is good so far
+				c = b_getc(sc_buf);
+				if (c == 'D') { // Is good so far
+					c = b_getc(sc_buf);
+					if (c == '.') { // This is .AND. operator
+						t.code = LOG_OP_T;
+						t.attribute.log_op = AND;
+						return t;
+						break;
+					}
+				}
+		   }
+	   }
+
    IF (c == '.') TRY TO PROCESS .AND. or .OR.
    IF SOMETHING ELSE FOLLOWS . OR THE LAST . IS MISSING
    RETURN AN ERROR TOKEN                                               

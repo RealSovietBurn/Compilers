@@ -56,7 +56,7 @@ int  st_table[ ][TABLE_COLUMNS] = {
 REPLACE *N1*, *N2*, and *N3* WITH YOUR NUMBERS
 #define ASWR     *N1*  /* accepting state with retract */
 #define ASNR     *N2*  /* accepting state with no retract */
-#define NOAS     *N3*  /* not accepting state */
+#define NOAS     -3  /* not accepting state */
 
 int as_table[ ] = {YOUR INITIALIZATION HERE - USE ASWR, ASNR, NOAS };
 
