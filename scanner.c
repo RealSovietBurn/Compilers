@@ -97,9 +97,7 @@ which is being processed by the scanner.
 
               
 /* special cases or token driven processing */
-
-                
-  
+ 
    if (c == ' ') continue;
    if (c == '{'){ t.code = RBR_T; /*no attribute */ return t;}
    if (c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }                
@@ -111,32 +109,106 @@ which is being processed by the scanner.
    if (c == ')'){ t.code = RBR_T; return t;}
    if (c == ','){ t.code = COM_T; return t;}
    if (c == ';'){ t.code = EOS_T; return t;}
-   if (c == '.'){ 
-	   b_setmark(sc_buf,b_getc_offset(sc_buf) - 1); // set mark, if there's something wrong after
+   if (c == '>'){ t.code = REL_OP_T; t.attribute.arr_op = GT; }
+   if (c == '<'){ // there also maybe not equal sign
+	   c = b_getc(sc_buf);
+	   if (c == '>'){
+		   t.code = REL_OP_T;
+		   t.attribute.arr_op = NE; // it's not equal
+		   return t;
+	   }
+	   else { // is nor >, it's usual rel_op_t;
+		   b_retract(sc_buf);
+		   t.code = REL_OP_T; 
+		   t.attribute.arr_op = LT;
+	   }
+  }
+   // Have to delete this pragma region before submission, as it is c++ thing
+   // err_lex MAY BE WRONG. PAY ATTENTION
+#pragma region logicalOperatorsProcessing
+   if (c == '.'){
+	  b_setmark(sc_buf, b_getc_offset(sc_buf)); // set mark, if there's something wrong after, Maybe it's -1. Must be tested
 	   c = b_getc(sc_buf);
 	   if (c == 'A') { // Is good so far
 		   c = b_getc(sc_buf);
 		   if (c == 'N'){ // Is good so far
-				c = b_getc(sc_buf);
-				if (c == 'D') { // Is good so far
-					c = b_getc(sc_buf);
-					if (c == '.') { // This is .AND. operator
-						t.code = LOG_OP_T;
-						t.attribute.log_op = AND;
-						return t;
-						break;
-					}
-				}
+			   c = b_getc(sc_buf);
+			   if (c == 'D') { // Is good so far
+				   c = b_getc(sc_buf);
+				   if (c == '.') { // This is .AND. operator
+					   t.code = LOG_OP_T;
+					   t.attribute.log_op = AND;
+					   return t;
+				   }
+				   else {
+					   b_retract_to_mark(sc_buf);
+					   t.attribute.err_lex[0] = c;
+					   t.code = ERR_T;
+					   return t;
+				   }
+			   }
+			   else { // NO D
+				   b_retract_to_mark(sc_buf);
+				   t.code = ERR_T;
+				   t.attribute.err_lex[0] = c;
+				   return t;
+			   }
+		   }
+		   else { // NO N
+     		   b_retract_to_mark(sc_buf);
+			   t.code = ERR_T;
+			   t.attribute.err_lex[0] = c;
+			   return t;
 		   }
 	   }
+	   else if (c == 'O') { // or it may be .OR. 
+		   c = b_getc(sc_buf);
+		   if (c == 'R') { // good so far
+			   c = b_getc(sc_buf);
+			   if (c == '.') { // It's .OR.
+				   t.code = LOG_OP_T;
+				   t.attribute.log_op = OR;
+				   return t;
+			   }
+			   else { // Not .
+				   b_retract_to_mark(sc_buf);
+				   t.code = ERR_T;
+				   t.attribute.err_lex[0] = c;
+				   return t;
+			   }
+		   }
+		   else { // Not R
+			   b_retract_to_mark(sc_buf);
+			   t.attribute.err_lex[0] = c;
+			   t.code = ERR_T;
+			   return t;
+		   }
+	   }
+	   else {
+		   b_retract_to_mark(sc_buf);
+		   t.code = ERR_T;
+		   t.attribute.err_lex[0] = c;
+		   return t;
+	   }
+   }
+#pragma endregion
 
-   IF (c == '.') TRY TO PROCESS .AND. or .OR.
-   IF SOMETHING ELSE FOLLOWS . OR THE LAST . IS MISSING
-   RETURN AN ERROR TOKEN                                               
-   IF (c == '!') TRY TO PROCESS COMMENT
-   IF THE FOLLOWING IS NOT CHAR IS NOT < REPORT AN ERROR
-   ELSE IN A LOOP SKIP CHARACTERS UNTIL \n THEN continue;
-   ...
+   if (c == '!') { // Trying to process comment;					 
+	   c = b_getc(sc_buf);   //  b_setmark(sc_buf, b_getc_offset(sc_buf)); // set mark. Maybe its b_getc_offset - 1. Must be tested; Is used for t.attribute.err_lex
+	   if (c == '<') {
+		   // processing comment here
+		   while (c != '\n')
+		   {
+			   c = b_getc(sc_buf);
+		   }
+	   } 
+	   else {
+		   t.code = ERR_T;
+		   return t;
+	   }
+   }
+
+                                                
    IF STRING (FOR EXAMPLE, "text") IS FOUND      
       SET MARK TO MARK THE BEGINNING OF THE STRING
       IF THE STRING IS LEGAL   
