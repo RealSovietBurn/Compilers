@@ -34,29 +34,34 @@
  */
  
 
-REPLACE *ESN* WITH YOUR ERROR STATE NUMBER 
-#define ES  *ESN* /* Error state */
+#define ES -2 /* Error state */
 #define IS -1    /* Inavalid state */
 
 /* State transition table definition */
 
-REPLACE *CN* WITH YOUR COLUMN NUMBER  
-
-#define TABLE_COLUMNS *CN*
+#define TABLE_COLUMNS 6 // check transition table
 /*transition table - type of states defined in separate table */
 int  st_table[ ][TABLE_COLUMNS] = {
-/* State 0 */  {YOUR INITIALIZATION},
-/* State 1 */  {YOUR INITIALIZATION},
-.
-. YOUR TABLE INITIALIZATION HERE
-.
-/* State N */  {YOUR INITIALIZATION}, 
- 
+//				[a-zA-z]   0    [1-9]     .        %        other
+/* State 0 */  {    1   ,  6  ,   4   ,   IS   ,   IS   ,   IS   },
+/* State 1 */  {    1   ,  1  ,   1   ,    2   ,    3   ,    2   },
+/* State 2 */  {},
+/* State 3 */  {},
+/* State 4 */  {},
+/* State 5 */  {},
+/* State 6 */  {},
+/* State 7 */  {}, 
+/* State 8 */  {},
+/* State 9 */  {},
+/* State 10 */ {},
+/* State 11 */ {},
+/* State 12 */ {},
+
 /* Accepting state table definition */
-REPLACE *N1*, *N2*, and *N3* WITH YOUR NUMBERS
-#define ASWR     *N1*  /* accepting state with retract */
-#define ASNR     *N2*  /* accepting state with no retract */
-#define NOAS     -3  /* not accepting state */
+
+#define ASWR      1  /* accepting state with retract */
+#define ASNR      0 /* accepting state with no retract */
+#define NOAS     -1  /* not accepting state */
 
 int as_table[ ] = {YOUR INITIALIZATION HERE - USE ASWR, ASNR, NOAS };
 

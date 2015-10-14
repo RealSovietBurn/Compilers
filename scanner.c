@@ -129,14 +129,8 @@ which is being processed by the scanner.
 				}
 		   }
 	   }
-
-   IF (c == '.') TRY TO PROCESS .AND. or .OR.
-   IF SOMETHING ELSE FOLLOWS . OR THE LAST . IS MISSING
-   RETURN AN ERROR TOKEN                                               
-   IF (c == '!') TRY TO PROCESS COMMENT
-   IF THE FOLLOWING IS NOT CHAR IS NOT < REPORT AN ERROR
-   ELSE IN A LOOP SKIP CHARACTERS UNTIL \n THEN continue;
-   ...
+                                        
+ 
    IF STRING (FOR EXAMPLE, "text") IS FOUND      
       SET MARK TO MARK THE BEGINNING OF THE STRING
       IF THE STRING IS LEGAL   
@@ -206,9 +200,7 @@ which is being processed by the scanner.
 }
 
 
-DO NOT MODIFY THE CODE OF THIS FUNCTION
-YOU CAN REMOVE THE COMMENTS
-
+// Do not modify it
 int get_next_state(int state, char c, int *accept)
 {
 	int col;
