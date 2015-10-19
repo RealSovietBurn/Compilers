@@ -117,7 +117,7 @@ PTR_AAF aa_table[ ] ={
 	aa_func10,/* State 10 */
 	NULL,     /* State 11 */
 	aa_func12,/* State 12 */
-	aa_func12 /* State 13 */
+//	aa_func12 /* State 13 */
 };
 /* Keyword lookup table (.AND. and .OR. are not keywords) */
 

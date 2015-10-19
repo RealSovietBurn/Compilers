@@ -99,7 +99,8 @@ which is being processed by the scanner.
 /* special cases or token driven processing */
 
                 
-  
+   if (c == 'SEOF') {t.code = SEOF_T; return t;}
+   if (c == '\n') {line++; continue;}
    if (c == ' ') continue;
    if (c == '{'){ t.code = RBR_T; /*no attribute */ return t;}
    if (c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }                
@@ -129,8 +130,46 @@ which is being processed by the scanner.
 				}
 		   }
 	   }
-                                        
- 
+   }
+
+   if (c == '"'){ // String start. NOT DINISHED
+	   b_setmark(sc_buf, b_getc_offset(sc_buf));
+		
+       lexstart=b_getc_offset(sc_buf); // Start of string lexem
+	   c = b_getc(sc_buf);
+
+      while(c != '"') {
+				/* If a newline character has been encountered, increment the line number counter */
+				if(c== '\n' || c == 'SEOF')
+				{
+					++line;
+				}
+
+				/* If '\0' is encountered, return an error token */
+				if(c== '\0')
+				{
+					t.code = ERR_T;
+					return t;
+				}
+			t.code = STR_T;	t.attribute.str_offset = b_getsize(str_LTBL);
+			lexend = (b_getc_offset(sc_buf)-1);
+			b_retract_to_mark(sc_buf);
+			
+			while(lexstart != lexend)
+			{
+				c = b_getc(sc_buf);
+				b_addc(str_LTBL,c);
+				++lexstart;
+			}
+			
+			b_addc(str_LTBL,'\0');
+			c = b_getc(sc_buf);
+			return t;
+
+      }
+   }
+
+/*
    IF STRING (FOR EXAMPLE, "text") IS FOUND      
       SET MARK TO MARK THE BEGINNING OF THE STRING
       IF THE STRING IS LEGAL   
@@ -151,7 +190,9 @@ which is being processed by the scanner.
    
    IF (c == ANOTHER CHARACTER)        
      SET TOKEN
-     return t;                 
+     return t;              */
+
+
 /* Process state transition table */  
         
   IF (c is a digit OR c is a letter){
@@ -260,60 +301,71 @@ OF THE LETTERS A,B,...,Z.
 }
 
 
+// Accept AVID token
+Token aa_func02(char lexeme[]){
+	Token t;
+	int keyword = iskeyword(lexeme);
 
-HERE YOU WRITE THE DEFINITIONS FOR YOUR ACCEPTING FUNCTIONS. 
-************************************************************
+	if (keyword) {
+		t.code = KW_T;
+		t.attribute.kwt_idx = keyword;
+		return t;
+	} else { // Set AVID
+		if (strlen(lexeme) > VID_LEN){
+			strncpy(t.attribute.vid_lex, lexeme, VID_LEN);
+			t.attribute.vid_lex[VID_LEN] = '\0';
+		} else {
+			strcpy(t.attribute.vid_lex, lexeme);
+			t.attribute.vid_lex[strlen(lexeme)-1] = '\0';
+		}
+		t.code = AVID_T;
+		return t;
+	}
+}
 
-ACCEPTING FUNCTION FOR THE arithmentic variable identifier AND keywords (VID - AVID/KW)
-REPLACE XX WITH THE CORRESPONDING ACCEPTING STATE NUMBER
-
-Token aa_funcXX(char lexeme[]){
-
-WHEN CALLED THE FUNCTION MUST
-1. CHECK IF THE LEXEME IS A KEYWORD.
-   IF YES, IT MUST RETURN A TOKEN WITH THE CORRESPONDING ATTRIBUTE
-   FOR THE KEYWORD. THE ATTRIBUTE CODE FOR THE KEYWORD
-   IS ITS INDEX IN THE KEYWORD LOOKUP TABLE (kw_table in table.h).
-   IF THE LEXEME IS NOT A KEYWORD, GO TO STEP 2.
-
-2. SET a AVID TOKEN.
-   IF THE lexeme IS LONGER than VID_LEN (see token.h) CHARACTERS,
-   ONLY FIRST VID_LEN CHARACTERS ARE STORED 
-   INTO THE VARIABLE ATTRIBUTE ARRAY vid_lex[](see token.h) .
-   ADD \0 AT THE END TO MAKE A C-type STRING.
+// Accept SVID token
+Token aa_func03(char lexeme[]){
+	Token t;
+	if (strlen(lexeme) > VID_LEN) {
+		strncpy(t.attribute.vid_lex, lexeme, VID_LEN-1);
+		t.attribute.vid_lex[VID_LEN-1] = '%';
+		t.attribute.vid_lex[VID_LEN] = '\0';
+	} else {
+		strcpy(t.attribute.vid_lex, lexeme);
+		t.attribute.vid_lex[strlen(lexeme)] = '%';
+		t.attribute.vid_lex[strlen(lexeme)]= '\0';
+	}
+	t.code = SVID_T;
   return t;
 }
 
-ACCEPTING FUNCTION FOR THE string variable identifier (VID - SVID)
-REPLACE XX WITH THE CORRESPONDING ACCEPTING STATE NUMBER
 
-Token aa_funcXX(char lexeme[]){
-
-WHEN CALLED THE FUNCTION MUST
-1. SET a SVID TOKEN.
-   IF THE lexeme IS LONGER than VID_LEN characters,
-   ONLY FIRST VID_LEN-1 CHARACTERS ARE STORED
-   INTO THE VARIABLE ATTRIBUTE ARRAY vid_lex[],
-   AND THEN THE % CHARACTER IS APPENDED TO THE NAME.
-   ADD \0 AT THE END TO MAKE A C-type STRING.
+// FPL token
+Token aa_func08(char lexeme[]){
   
-  return t;
+	Token t;
+	double floatValue; // Using double to avoid possible float over or underflows
+
+	floatValue = atof(lexeme);
+
+	/*  if it's not in range */
+	if (floatValue > FLT_MAX || floatValue < FLT_MIN)
+	{
+		t.code = ERR_T;
+		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
+		t.attribute.err_lex[ERR_LEN] = '\0';
+	}
+	else
+	{
+		t.code = FPL_T;
+		t.attribute.flt_value = (float)floatValue;
+	}
+	
+	return t;
 }
 
-ACCEPTING FUNCTION FOR THE floating-point literal (FPL)
 
-Token aa_funcXX(char lexeme[]){
-
-THE FUNCTION MUST CONVERT THE LEXEME TO A FLOATING POINT VALUE,
-WHICH IS THE ATTRIBUTE FOR THE TOKEN.
-THE VALUE MUST BE IN THE SAME RANGE AS the value of 4-byte float in C.
-IN CASE OF ERROR (OUT OF RANGE) THE FUNCTION MUST RETURN ERROR TOKEN
-THE ERROR TOKEN ATTRIBUTE IS  lexeme
-  return t;
-}
-
-ACCEPTING FUNCTION FOR THE integer literal(IL) - decimal constant (DIL) AND ZERO (0)
-
+/* IL*/
 Token aa_funcXX(char lexeme[]){
 
 THE FUNCTION MUST CONVERT THE LEXEME REPRESENTING A DECIMAL CONSTANT AND 0
@@ -364,7 +416,14 @@ THE FUNCTION CONVERTS AN ASCII STRING
 REPRESENTING AN OCTAL INTEGER CONSTANT TO INTEGER VALUE
 }
 
-HERE YOU WRITE YOUR ADDITIONAL FUNCTIONS (IF ANY).
-FOR EXAMPLE
+int iskeyword(char * kw_lexeme){
+	
+	int i = 0;
+	for ( i = 0; i < KWT_SIZE; i++) {
+		if (kw_lexeme == kw_table[i])
+			return i;
+	}
 
-int iskeyword(char * kw_lexeme){}
+	return R_FAIL_1;
+
+}
