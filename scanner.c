@@ -112,10 +112,21 @@ which is being processed by the scanner.
    else if(c == '/'){ t.code = ART_OP_T; t.attribute.arr_op = DIV; return t; }
    else if(c == '*'){ t.code = ART_OP_T; t.attribute.arr_op = MULT; return t; }
    else if(c == '('){ t.code = LPR_T; return t; }
-   else if(c == ')'){ t.code = RBR_T; return t; }
+   else if(c == ')'){ t.code = RPR_T; return t; }
    else if (c == ','){ t.code = COM_T; return t; }
    else if (c == ';'){ t.code = EOS_T; return t; }
-   else if (c == '='){ t.code = ASS_OP_T; return t; }
+   else if (c == '='){
+	   c = b_getc(sc_buf);
+	   if (c == '=') {
+		   t.code = REL_OP_T;
+		   t.attribute.rel_op = EQ;
+		   return t;
+	   } else {
+		   b_retract(sc_buf);
+	   }
+	   t.code = ASS_OP_T;
+	   return t;
+   }
    else if (c == '>'){ t.code = REL_OP_T; t.attribute.rel_op = GT; }
    else if (c == '<'){ // there also maybe not equal sign
 	   c = b_getc(sc_buf);
@@ -480,14 +491,13 @@ Token aa_func05(char lexeme[]){
 	int intValue = 0;
 
 	intValue = atoi(lexeme);
-
-	if (sizeof(intValue) > sizeof(INT_MAX) || sizeof(intValue) >  sizeof(INT_MAX)){
+	if (sizeof(intValue) > sizeof(INT_MAX) || sizeof(intValue) > sizeof(INT_MIN)){
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
 		t.attribute.err_lex[ERR_LEN] = '\0';
 	} else {
 		t.code = INL_T;
-		t.attribute.flt_value = intValue;
+		t.attribute.int_value = intValue;
 	}
   return t;
 }
