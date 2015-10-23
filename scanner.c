@@ -128,6 +128,7 @@ which is being processed by the scanner.
 		   b_retract(sc_buf);
 		   t.code = REL_OP_T; 
 		   t.attribute.rel_op = LT;
+		   return t;
 	   }
   }
    // Have to delete this pragma region before submission, as it is c++ thing
@@ -413,7 +414,7 @@ Token aa_func02(char lexeme[]){
 	Token t;
 	int keyword = iskeyword(lexeme);
 
-	if (keyword) {
+	if (keyword > 0) {
 		t.code = KW_T;
 		t.attribute.kwt_idx = keyword;
 		return t;
@@ -423,7 +424,7 @@ Token aa_func02(char lexeme[]){
 			t.attribute.vid_lex[VID_LEN] = '\0';
 		} else {
 			strcpy(t.attribute.vid_lex, lexeme);
-			t.attribute.vid_lex[strlen(lexeme)-1] = '\0';
+			t.attribute.vid_lex[strlen(lexeme)] = '\0';
 		}
 		t.code = AVID_T;
 		return t;
@@ -456,7 +457,7 @@ Token aa_func08(char lexeme[]){
 	floatValue = atof(lexeme);
 
 	/*  if it's not in range */
-	if (floatValue > FLT_MAX || floatValue < FLT_MIN)
+	if ((float)floatValue > FLT_MAX) // should add <. Somehow floatValue < FLT_MIN is not working
 	{
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
@@ -546,7 +547,7 @@ int iskeyword(char * kw_lexeme){
 	
 	int i = 0;
 	for ( i = 0; i < KWT_SIZE; i++) {
-		if (kw_lexeme == kw_table[i])
+		if (strcmp(kw_table[i], kw_lexeme) == 0)
 			return i;
 	}
 
