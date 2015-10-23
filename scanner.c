@@ -344,7 +344,7 @@ Token aa_func03(char lexeme[]){
 Token aa_func08(char lexeme[]){
   
 	Token t;
-	double floatValue; // Using double to avoid possible float over or underflows
+	double floatValue = 0; // Using double to avoid possible float over or underflows
 
 	floatValue = atof(lexeme);
 
@@ -366,20 +366,27 @@ Token aa_func08(char lexeme[]){
 
 
 /* IL*/
-Token aa_funcXX(char lexeme[]){
+Token aa_func05(char lexeme[]){
 
-THE FUNCTION MUST CONVERT THE LEXEME REPRESENTING A DECIMAL CONSTANT AND 0
-TO A DECIMAL INTEGER VALUE, WHICH IS THE ATTRIBUTE FOR THE TOKEN.
-THE VALUE MUST BE IN THE SAME RANGE AS the value of 2-byte int in C.
-IN CASE OF ERROR (OUT OF RANGE) THE FUNCTION MUST RETURN ERROR TOKEN
-THE ERROR TOKEN ATTRIBUTE IS  lexeme
+	Token t;
+	int intValue = 0;
+
+	intValue = atoi(lexeme);
+
+	if (sizeof(intValue) > sizeof(INT_MAX) || sizeof(intValue) >  sizeof(INT_MAX)){
+		t.code = ERR_T;
+		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
+		t.attribute.err_lex[ERR_LEN] = '\0';
+	} else {
+		t.code = INL_T;
+		t.attribute.flt_value = intValue;
+	}
   return t;
 }
 
-ACCEPTING FUNCTION FOR THE integer literal(IL) - octal constant (OIL)
-
+// OIL
 Token aa_funcXX(char lexeme[]){
-
+	/*
 THE FUNCTION MUST CONVERT THE LEXEME REPRESENTING AN OCTAL CONSTANT
 TO A DECIMAL INTEGER VALUE WHICH IS THE ATTRIBUTE FOR THE TOKEN.
 THE VALUE MUST BE IN THE SAME RANGE AS the value of 2-byte int in C.
@@ -389,13 +396,13 @@ THE MAIN DIFFERENCE IE THAT THIS FUNCTION CALLS
 THE FUNCTION atool(char * lexeme) WHICH CONVERTS AN ASCII STRING
 REPRESENTING AN OCTAL NUMBER TO INTEGER VALUE
 IN CASE OF ERROR (OUT OF RANGE) THE FUNCTION MUST RETURN ERROR TOKEN
-THE ERROR TOKEN ATTRIBUTE IS  lexeme
+THE ERROR TOKEN ATTRIBUTE IS  lexeme*/
 
   return t;
 }
 
-ACCEPTING FUNCTION FOR THE ERROR TOKEN 
 
+// Error token
 Token aa_funcXX(char lexeme[]){
 
 THE FUNCTION SETS THE ERROR TOKEN. lexeme[] CONTAINS THE ERROR
@@ -408,12 +415,10 @@ stored in err_lex.
 }
 
 
-CONVERSION FUNCTION
+
 
 long atool(char * lexeme){
 
-THE FUNCTION CONVERTS AN ASCII STRING
-REPRESENTING AN OCTAL INTEGER CONSTANT TO INTEGER VALUE
 }
 
 int iskeyword(char * kw_lexeme){

@@ -55,7 +55,8 @@ int  st_table[ ][TABLE_COLUMNS] = {
 /* State 9 */  {    10  ,  9  ,   ES  ,   ES   ,   10   ,    10  },
 /* State 10 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
 /* State 11 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
-/* State 12 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  }
+/* State 12 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
+/* State 13 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  }
      };
 
 /* Accepting state table definition */
