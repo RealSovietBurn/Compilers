@@ -255,12 +255,11 @@ Algorithm:
 void b_destroy (Buffer * const pBD){
 	
 	if (pBD != NULL) {
+		if (pBD->cb_head != NULL) {
+			free(pBD->cb_head);
+		}
 		free (pBD);
-	} else {
-		return;
 	}
-	if (pBD->cb_head != NULL)
-		free (pBD->cb_head);
 }
 
 /************************************************************************************************************************

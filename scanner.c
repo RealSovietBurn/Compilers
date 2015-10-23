@@ -110,18 +110,19 @@ which is being processed by the scanner.
    else if(c == ')'){ t.code = RBR_T; return t; }
    else if (c == ','){ t.code = COM_T; return t; }
    else if (c == ';'){ t.code = EOS_T; return t; }
-   else if (c == '>'){ t.code = REL_OP_T; t.attribute.arr_op = GT; }
+   else if (c == '='){ t.code = ASS_OP_T; return t; }
+   else if (c == '>'){ t.code = REL_OP_T; t.attribute.rel_op = GT; }
    else if (c == '<'){ // there also maybe not equal sign
 	   c = b_getc(sc_buf);
 	   if (c == '>'){
 		   t.code = REL_OP_T;
-		   t.attribute.arr_op = NE; // it's not equal
+		   t.attribute.rel_op = NE; // it's not equal
 		   return t;
 	   }
 	   else { // is nor >, it's usual rel_op_t;
 		   b_retract(sc_buf);
 		   t.code = REL_OP_T; 
-		   t.attribute.arr_op = LT;
+		   t.attribute.rel_op = LT;
 	   }
   }
    // Have to delete this pragma region before submission, as it is c++ thing
@@ -268,14 +269,14 @@ which is being processed by the scanner.
 
    else {
 	   lexstart = b_getc_offset(sc_buf);
-	   b_setmark(sc_buf, b_getc_offset(sc_buf)); // setting mark at the beginning
+	   b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // setting mark at the beginning
 
 	   state = 0;
 
 	   state = get_next_state(state, c, &accept); // getting the first state
 	   c = b_getc(sc_buf);
 
-	   while (accept = NOAS) {
+	   while (accept == NOAS) {
 		   state = get_next_state(state, c, &accept);
 		   c = b_getc(sc_buf);
 	   }
@@ -304,7 +305,7 @@ which is being processed by the scanner.
 
 	   b_addc(lex_buf, '\0'); /*Make it C-Type*/
 
-	   lexeme = malloc(b_size(lex_buf)); // make a lexeme
+	   lexeme = (char *)malloc(b_size(lex_buf)); // make a lexeme
 
 	   if (lexeme != NULL){
 		   for (iterator = 0; iterator < b_size(lex_buf); iterator++){
@@ -355,7 +356,7 @@ If you place the #define NDEBUG directive ("no debugging")
 in the source code before the #include <assert.h> directive,
 the effect is to comment out the assert statement.
 */
-       assert(next != IS);
+//       assert(next != IS);
 
 /*
 The other way to include diagnostics in a program is to use
@@ -394,7 +395,10 @@ int char_class (char c)
 		val = 4;
 	else
 		val = 5;
-	// if it's a letter, val will stay 0; 
+	
+	if (isalpha(c))
+		val = 0;
+
 	return val;
 }
 
