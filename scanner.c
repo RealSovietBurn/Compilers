@@ -261,7 +261,7 @@ which is being processed by the scanner.
 	  b_addc(str_LTBL, '\0');
 
 	  t.code = STR_T;	
-	  t.attribute.str_offset = b_getsize(str_LTBL);
+	  t.attribute.str_offset = b_size(str_LTBL);
 	  c = b_getc(sc_buf);
 	  return t;
    }
@@ -483,9 +483,10 @@ Token aa_func05(char lexeme[]){
 }
 
 // OIL
-Token aa_func08(char lexeme[]){
+Token aa_func10(char lexeme[]){
 	
 	Token t;
+	t.code = INL_T;
 	/*
 THE FUNCTION MUST CONVERT THE LEXEME REPRESENTING AN OCTAL CONSTANT
 TO A DECIMAL INTEGER VALUE WHICH IS THE ATTRIBUTE FOR THE TOKEN.
@@ -498,7 +499,7 @@ REPRESENTING AN OCTAL NUMBER TO INTEGER VALUE
 IN CASE OF ERROR (OUT OF RANGE) THE FUNCTION MUST RETURN ERROR TOKEN
 THE ERROR TOKEN ATTRIBUTE IS  lexeme*/
 
-  return t;
+   return t;
 }
 
 
