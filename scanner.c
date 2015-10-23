@@ -100,10 +100,15 @@ which is being processed by the scanner.
    if (c == 'SEOF') {t.code = SEOF_T; return t;}
    else if (c == '\n') {line++; continue;}
    else if (c == ' ') continue;
-   else if (c == '{'){ t.code = RBR_T; /*no attribute */ return t; }
+   else if (c == 255) {
+	   t.code = SEOF_T;
+	   return t;
+   }
+   else if (c == '\0') continue;
+   else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
-   else if(c == '}'){ t.code = LBR_T; return t; }
+   else if(c == '}'){ t.code = RBR_T; return t; }
    else if(c == '/'){ t.code = ART_OP_T; t.attribute.arr_op = DIV; return t; }
    else if(c == '*'){ t.code = ART_OP_T; t.attribute.arr_op = MULT; return t; }
    else if(c == '('){ t.code = LPR_T; return t; }
