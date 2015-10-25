@@ -394,7 +394,6 @@ or #undef DEBUF is used - see the top of the file.
 	return next;
 }
 
-// will be changed, when we add one more column for octals in the table
 int char_class (char c)
 {
 	int val = 0;
@@ -403,16 +402,18 @@ int char_class (char c)
 	{
 		if (c == '0')
 			val = 1;
-		if (c <= '9')
+		 if (c <= '7')
 			val = 2;
+		 if (c >= '8')
+			val = 3;
 		
 	}
 	else if (c == '.')
-		val = 3;
-	else if (c == '%')
 		val = 4;
-	else
+	else if (c == '%')
 		val = 5;
+	else
+		val = 6;
 	
 	if (isalpha(c))
 		val = 0;

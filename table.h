@@ -39,24 +39,24 @@
 
 /* State transition table definition */
 
-#define TABLE_COLUMNS 6 // check transition table
+#define TABLE_COLUMNS 7 // check transition table
 /*transition table - type of states defined in separate table */
 int  st_table[ ][TABLE_COLUMNS] = {
-//				[a-zA-z]   0    [1-9]     .        %        other
-/* State 0 */  {    1   ,  6  ,   4   ,   IS   ,   IS   ,   IS   },
-/* State 1 */  {    1   ,  1  ,   1   ,    2   ,    3   ,    2   },
-/* State 2 */  {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,   IS   },
-/* State 3 */  {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,   IS   },
-/* State 4 */  {    ES  ,  4  ,   4   ,   7    ,   5    ,    5   },
-/* State 5 */  {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
-/* State 6 */  {    ES  ,  ES ,   5   ,   7    ,   ES   ,    5   }, //state 6 is questionable here
-/* State 7 */  {    8   ,  7  ,   7   ,   8    ,   8    ,    8   }, 
-/* State 8 */  {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
-/* State 9 */  {    10  ,  9  ,   ES  ,   ES   ,   10   ,    10  },
-/* State 10 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
-/* State 11 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
-/* State 12 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  },
-/* State 13 */ {    IS  ,  IS ,   IS  ,   IS   ,   IS   ,    IS  }
+//				[a-zA-z]   0    [1-7]  [8-9]    .        %        other
+/* State 0 */  {    1   ,  6  ,   4   ,  4 ,     IS   ,   IS   ,   IS   },
+/* State 1 */  {    1   ,  1  ,   1   ,  1,      2    ,    3   ,    2   },
+/* State 2 */  {    IS  ,  IS ,   IS  ,  IS,     IS   ,   IS   ,   IS   },
+/* State 3 */  {    IS  ,  IS ,   IS  ,  IS,     IS   ,   IS   ,   IS   },
+/* State 4 */  {    ES  ,  4  ,   4   ,  4,      7    ,   5    ,    5   },
+/* State 5 */  {    IS  ,  IS ,   IS  ,  IS,     IS   ,   IS   ,    IS  },
+/* State 6 */  {    ES  ,  ES ,   9   ,  5,      7    ,   ES   ,    5   }, //state 6 is questionable here
+/* State 7 */  {    8   ,  7  ,   7   ,  7,      8    ,   8    ,    8   }, 
+/* State 8 */  {    IS  ,  IS ,   IS  ,  IS,     IS   ,   IS   ,    IS  },
+/* State 9 */  {    ES  ,  9  ,   9  ,   ES,     ES   ,   ES   ,    10  },
+/* State 10 */ {    IS  ,  IS ,   IS  ,  IS,     IS   ,   IS   ,    IS  },
+/* State 11 */ {    IS  ,  IS ,   IS  ,  IS ,    IS   ,   IS   ,    IS  },
+/* State 12 */ {    IS  ,  IS ,   IS  ,  IS ,	 IS   ,   IS   ,    IS  },
+/* State 13 */ {    IS  ,  IS ,   IS  ,  IS ,    IS   ,   IS   ,    IS  }
      };
 
 /* Accepting state table definition */
