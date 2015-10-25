@@ -115,6 +115,7 @@ which is being processed by the scanner.
    else if(c == ')'){ t.code = RPR_T; return t; }
    else if (c == ','){ t.code = COM_T; return t; }
    else if (c == ';'){ t.code = EOS_T; return t; }
+   else if (c == '#') { t.code = SCC_OP_T; return t; }
    else if (c == '='){
 	   c = b_getc(sc_buf);
 	   if (c == '=') {
@@ -330,9 +331,9 @@ which is being processed by the scanner.
 		   }
 	   }
 
-	  
 	   t = aa_table[state](lexeme);
 
+	   free(lexeme);
 	   b_destroy(lex_buf);
 	   return t;
    }
