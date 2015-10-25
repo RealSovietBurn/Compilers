@@ -231,7 +231,7 @@ which is being processed by the scanner.
    else if (c == '"'){ // String start. MAY BE FINISHED. MUST  BE TESTED
 
 	   c = b_getc(sc_buf);
-	   b_setmark(sc_buf, b_getc_offset(sc_buf)); // +1 as current letter is "
+	   b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // +1 as current letter is "
        lexstart=b_getc_offset(sc_buf); // Start of string lexem
 	 
 
@@ -266,7 +266,7 @@ which is being processed by the scanner.
 				}
 				c = b_getc(sc_buf);
       }
-	  lexend = b_getc_offset(sc_buf - 1); // get lexend after we hit second "
+	  lexend = b_getc_offset(sc_buf ); // get lexend after we hit second "
 
 	  b_retract_to_mark(sc_buf); // return to mark
 

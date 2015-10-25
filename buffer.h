@@ -49,6 +49,7 @@
 #define SUCCESS 1		   /*success return value*/
 #define LOAD_FAIL -2       /* load fail error */
 #define SET_R_FLAG 1       /* realloc flag set value */
+#define INC_FACTOR_FAILURE 256
 		 
 /* user data type declarations */
 typedef struct BufferDescriptor {
