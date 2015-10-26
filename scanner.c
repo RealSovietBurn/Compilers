@@ -100,8 +100,7 @@ which is being processed by the scanner.
 /* special cases or token driven processing */       
    if (c == 'SEOF') {t.code = SEOF_T; return t;}
    else if (c == '\n') {line++; continue;}
-   else if (c == ' ') continue;
-   
+   else if (c == ' ') ;
    else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
    //If the input file does not have a proper end of file statement, and the
    //buffer reaches the end of buffer, return end of file token
@@ -111,7 +110,7 @@ which is being processed by the scanner.
 	   t.code = SEOF_T;
 	   return t;
    }
-   else if (c == '\0') continue;
+   else if (c == '\0');
    else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
@@ -169,22 +168,29 @@ which is being processed by the scanner.
 				   }
 				   else {
 					   b_retract_to_mark(sc_buf);
+					   c = b_getc(sc_buf);
 					   t.attribute.err_lex[0] = c;
+					   t.attribute.err_lex[1] = '\0';
+					   
 					   t.code = ERR_T;
 					   return t;
 				   }
 			   }
 			   else { // NO D
-				   b_retract_to_mark(sc_buf);
-				   t.code = ERR_T;
-				   t.attribute.err_lex[0] = c;
-				   return t;
+			        b_retract_to_mark(sc_buf);
+					c = b_getc(sc_buf);
+				    t.attribute.err_lex[0] = c;
+					t.attribute.err_lex[1] = '\0';
+					t.code = ERR_T;
+					return t;
 			   }
 		   }
 		   else { // NO N
      		   b_retract_to_mark(sc_buf);
-			   t.code = ERR_T;
+		       c = b_getc(sc_buf);
 			   t.attribute.err_lex[0] = c;
+			   t.attribute.err_lex[1] = '\0';
+			   t.code = ERR_T;
 			   return t;
 		   }
 	   }
@@ -199,14 +205,18 @@ which is being processed by the scanner.
 			   }
 			   else { // Not .
 				   b_retract_to_mark(sc_buf);
-				   t.code = ERR_T;
+				   c = b_getc(sc_buf);
 				   t.attribute.err_lex[0] = c;
+				   t.attribute.err_lex[1] = '\0';
+				   t.code = ERR_T;
 				   return t;
 			   }
 		   }
 		   else { // Not R
 			   b_retract_to_mark(sc_buf);
+			   c = b_getc(sc_buf);
 			   t.attribute.err_lex[0] = c;
+			   t.attribute.err_lex[1] = '\0';
 			   t.code = ERR_T;
 			   return t;
 		   }
@@ -214,9 +224,9 @@ which is being processed by the scanner.
 	   else {
 		   b_retract_to_mark(sc_buf);
 		   c = b_getc(sc_buf);
-		   t.code = ERR_T;
 		   t.attribute.err_lex[0] = c;
-		   t.attribute.err_lex[1] = '\0';
+		   t.attribute.err_lex[1] = '\0';				   
+		   t.code = ERR_T;
 		   return t;
 	   }
    }
