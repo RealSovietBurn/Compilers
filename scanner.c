@@ -101,6 +101,12 @@ which is being processed by the scanner.
    if (c == 'SEOF') {t.code = SEOF_T; return t;}
    else if (c == '\n') {line++; continue;}
    else if (c == ' ') continue;
+   
+   else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
+   //If the input file does not have a proper end of file statement, and the
+   //buffer reaches the end of buffer, return end of file token
+   //otherwise, the buffer will infinitely loop and print the last error token
+
    else if (c == 255) {
 	   t.code = SEOF_T;
 	   return t;
