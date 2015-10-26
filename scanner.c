@@ -154,7 +154,7 @@ which is being processed by the scanner.
    // err_lex MAY BE WRONG. PAY ATTENTION
 #pragma region logicalOperatorsProcessing
    else  if (c == '.'){
-	  b_setmark(sc_buf, b_getc_offset(sc_buf)); // set mark, if there's something wrong after, Maybe it's -1. Must be tested
+	  b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // set mark, if there's something wrong after, Maybe it's -1. Must be tested
 	   c = b_getc(sc_buf);
 	   if (c == 'A') { // Is good so far
 		   c = b_getc(sc_buf);
@@ -213,8 +213,10 @@ which is being processed by the scanner.
 	   }
 	   else {
 		   b_retract_to_mark(sc_buf);
+		   c = b_getc(sc_buf);
 		   t.code = ERR_T;
 		   t.attribute.err_lex[0] = c;
+		   t.attribute.err_lex[1] = '\0';
 		   return t;
 	   }
    }
@@ -348,6 +350,11 @@ which is being processed by the scanner.
 
 	   free(lexeme);
 	   b_destroy(lex_buf);
+	   return t;
+   } else {
+	   t.code = ERR_T;
+	   t.attribute.err_lex[0] = c;
+	   t.attribute.err_lex[1] = '\0';
 	   return t;
    }
    /*
