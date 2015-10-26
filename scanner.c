@@ -116,7 +116,7 @@ which is being processed by the scanner.
 	   return t;
    }
 
-   else if (c == '\0');
+   else if (c == '	') continue;
    else if (c == '\0') { return t; }
    else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
