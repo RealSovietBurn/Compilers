@@ -112,9 +112,9 @@ which is being processed by the scanner.
 	   t.code = SEOF_T;
 	   return t;
    }
-
    else if (c == '\t') continue;
    else if (c == '\0') continue;
+   else if (c == '	') continue;
    else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
@@ -265,7 +265,7 @@ which is being processed by the scanner.
    }
 
 
-   else if (c == '"'){ // String start. MAY BE FINISHED. MUST  BE TESTED
+   else if (c == '"'){ // String start.
 
 	  b_setmark (sc_buf,(b_getc_offset(sc_buf)));
 			lexstart=b_getc_offset(sc_buf);
@@ -282,7 +282,7 @@ which is being processed by the scanner.
 				/* If '\0', return an error token */
 				if(c == '\0')
 				{
-					lexend =(b_getc_offset(sc_buf));
+					lexend = (b_getc_offset(sc_buf));
 					t.code = ERR_T;	
 					b_setmark(sc_buf,lexstart-1);
 					b_retract_to_mark(sc_buf);
@@ -291,16 +291,16 @@ which is being processed by the scanner.
 					{
 						c=b_getc(sc_buf);
 						if(errLexIt <ERR_LEN)
-							t.attribute.err_lex[errLexIt++]=c;
+							t.attribute.err_lex[errLexIt++] = c;
 						++lexstart;
 					}
 
 					if(errLexIt > (ERR_LEN-3))
 					{
-						t.attribute.err_lex[ERR_LEN-3]='.';
-						t.attribute.err_lex[ERR_LEN-2]='.';
-						t.attribute.err_lex[ERR_LEN-1]='.';
-						t.attribute.err_lex[ERR_LEN]='\0';
+						t.attribute.err_lex[ERR_LEN-3] = '.';
+						t.attribute.err_lex[ERR_LEN-2] = '.';
+						t.attribute.err_lex[ERR_LEN-1] = '.';
+						t.attribute.err_lex[ERR_LEN] = '\0';
 					}
 
 					b_retract(sc_buf);
@@ -327,51 +327,48 @@ which is being processed by the scanner.
    }
 
    else if (isdigit(c) || isalpha(c)){
-	   lexstart = b_getc_offset(sc_buf);
-	   b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // setting mark at the beginning
+	   
+				state=0;
+	            b_setmark ( sc_buf,(b_getc_offset(sc_buf)-1));
+				lexstart = b_mark(sc_buf);
+				b_retract(sc_buf); /* retract, as mark - 1 */
+				
+				do
+				{
+					c =  b_getc(sc_buf);
+					state = get_next_state(state,c,&accept);
+				} while(accept == NOAS);
 
-	   state = 0;
+	            if(accept == ASWR)
+				{
+					b_retract(sc_buf);
+				}
 
-	   state = get_next_state(state, c, &accept); // getting the first state
-	   c = b_getc(sc_buf);
+				lexend = b_getc_offset(sc_buf);	
+				
+				lex_buf = b_create(lexend - lexstart +1,1,'f');	/* create a temp buffer to hold the lexeme */
+				
+				if(lex_buf == NULL)
+				{
+					t.code =ERR_T;
+					strcpy(t.attribute.err_lex,"RUN TIME ERROR");
+					scerrnum++;
+					return t;
+				}
 
-	   while (accept == NOAS) {
-		   state = get_next_state(state, c, &accept);
-		   c = b_getc(sc_buf);
-	   }
+				b_retract_to_mark(sc_buf);
 
-	   if (accept == ASWR) // If it's accept with retruct  0123456701234567012345670
-	   {
-		   b_retract(sc_buf);
-	   }
+				while(lexstart != lexend)
+				{
+					c=b_getc(sc_buf);	
+					b_addc(lex_buf,c);
+					++lexstart;
+				}
 
-	   lexend = b_getc_offset(sc_buf);
-	   lex_buf = b_create(lexend - lexstart + 1, 1, 'f');	/* create a temp buffer to hold the lexeme */
-
-	   if (lex_buf == NULL)
-	   {
-		   ++scerrnum;
-		   t.code =ERR_T;
-	       strcpy(t.attribute.err_lex,"RUN TIME ERROR");
-			return t;
-	   }
-
-	   b_retract_to_mark(sc_buf);
-
-	   while (lexstart != lexend)
-	   {
-		   c = b_getc(sc_buf);
-	       b_addc(lex_buf, c);	/* add chars to lex buffer */
-		   ++lexstart;
-	   }
-
-	   b_addc(lex_buf, '\0'); /*Make it C-Type*/
-
-	   t = aa_table[state](lex_buf->cb_head);
-	
-	   free(lexeme);
-	   b_destroy(lex_buf);
-	   return t;
+				b_addc(lex_buf,'\0'); /* making it C-Type string */				
+				t = aa_table[state](lex_buf->cb_head);
+				b_destroy(lex_buf);
+				return t;
    } else {
 	   t.code = ERR_T;
 	   t.attribute.err_lex[0] = c;
@@ -453,9 +450,11 @@ int char_class (char c)
 	else if (c == '%')
 		return 5;
 	
+	/* If it's letter */
 	if (isalpha(c))
 		return 0;
 
+	/* If it's anything else */
 	return 6;
 
 }

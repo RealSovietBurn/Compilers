@@ -412,7 +412,7 @@ char b_getc (Buffer * const pBD){
 /************************************************************************************************************************
 Purpose: Prints the contents of the buffer
 Author: Oleg Matviyishyn
-History/Versions: 1.02 2015-09-29
+History/Versions: 2.0 2015-10-26
 Called functions: b_isempty(Buffer *), printf(const char *, ...)
 Parameters: Buffer * const
 Return value: numberPrinted, which is the number of printed characters
@@ -427,12 +427,15 @@ int b_print (Buffer * const pBD) {
 		return numberPrinted;
 	}
 	pBD->getc_offset = 0;
-	while ((c = b_getc(pBD)) && b_eob(pBD) != 1) { /*A warning C4706 appears here, as c = b_getc(pBD) is not a conditional expression */
-		printf("%c", c);						 /*It's placed here to avoid addional if statement below to check for EOF*/
-		numberPrinted++;			
+	c = b_getc(pBD);
+	/* until eob */
+	while (b_eob(pBD) == 0)
+	{
+		printf("%c",c);
+		++numberPrinted;
+		c = b_getc(pBD);
 	}
-	pBD->eob = 0;
-	pBD->getc_offset = 0;
+
 	printf("\n");
 
 	return numberPrinted;
