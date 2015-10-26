@@ -129,7 +129,7 @@ which is being processed by the scanner.
 	   t.code = ASS_OP_T;
 	   return t;
    }
-   else if (c == '>'){ t.code = REL_OP_T; t.attribute.rel_op = GT; }
+   else if (c == '>'){ t.code = REL_OP_T; t.attribute.rel_op = GT; return t; }
    else if (c == '<'){ // there also maybe not equal sign
 	   c = b_getc(sc_buf);
 	   if (c == '>'){
@@ -391,29 +391,27 @@ or #undef DEBUF is used - see the top of the file.
 
 int char_class (char c)
 {
-	int val = 0;
 	/* check if it's a number */
      if (isdigit(c))
 	{
 		if (c == '0')
-			val = 1;
+			return 1;
 		 if (c <= '7')
-			val = 2;
+			 return 2;
 		 if (c >= '8')
-			val = 3;
+			 return  3;
 		
 	}
 	else if (c == '.')
-		val = 4;
+		return 4;
 	else if (c == '%')
-		val = 5;
-	else
-		val = 6;
+		return 5;
 	
 	if (isalpha(c))
-		val = 0;
+		return 0;
 
-	return val;
+	return 6;
+
 }
 
 
@@ -503,20 +501,24 @@ Token aa_func05(char lexeme[]){
 Token aa_func10(char lexeme[]){
 	
 	Token t;
-	t.code = INL_T;
-	/*
-THE FUNCTION MUST CONVERT THE LEXEME REPRESENTING AN OCTAL CONSTANT
-TO A DECIMAL INTEGER VALUE WHICH IS THE ATTRIBUTE FOR THE TOKEN.
-THE VALUE MUST BE IN THE SAME RANGE AS the value of 2-byte int in C.
-THIS FUNCTION IS SIMILAR TO THE FUNCTION ABOVE AND THEY CAN BE
-COMBINED INTO ONE FUNCTION
-THE MAIN DIFFERENCE IE THAT THIS FUNCTION CALLS
-THE FUNCTION atool(char * lexeme) WHICH CONVERTS AN ASCII STRING
-REPRESENTING AN OCTAL NUMBER TO INTEGER VALUE
-IN CASE OF ERROR (OUT OF RANGE) THE FUNCTION MUST RETURN ERROR TOKEN
-THE ERROR TOKEN ATTRIBUTE IS  lexeme*/
+	int val = 0;
+	
+	val = atool(lexeme);
 
-   return t;
+	/* if error found or out of range, return error token */
+	if (val > SHRT_MAX || val < 0)
+	{
+		t.code = ERR_T;
+		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
+		t.attribute.err_lex[ERR_LEN] = '\0';
+	}
+	else
+	{
+		t.code = INL_T;
+		t.attribute.int_value = val;
+	}
+	
+	return t;
 }
 
 
@@ -547,7 +549,10 @@ Token aa_func12(char lexeme[]){
 
 
 long atool(char * lexeme){
-
+	long val = 0;
+	char *ptr = NULL;
+	val = strtol(lexeme, &ptr, 8);
+	return val;
 }
 
 int iskeyword(char * kw_lexeme){
