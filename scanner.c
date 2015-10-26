@@ -214,7 +214,8 @@ which is being processed by the scanner.
    }
 #pragma endregion
 
-   else if (c == '!') { // Trying to process comment;					 
+   else if (c == '!') { // Trying to process comment;	
+	   b_setmark(sc_buf, b_getc_offset(sc_buf) - 1); /* Set the mark to the beginning of the comment */
 	   c = b_getc(sc_buf);   //  b_setmark(sc_buf, b_getc_offset(sc_buf)); // set mark. Maybe its b_getc_offset - 1. Must be tested; Is used for t.attribute.err_lex
 	   if (c == '<') {
 		   // processing comment here
@@ -225,6 +226,17 @@ which is being processed by the scanner.
 	   } 
 	   else {
 		   t.code = ERR_T;
+		   b_retract_to_mark(sc_buf); /* If there is an error - return to the beginning of the comment*/
+		   c = b_getc(sc_buf);	   
+		   t.attribute.err_lex[0] = c;
+		   c = b_getc(sc_buf);
+		   t.attribute.err_lex[1] = c;
+		   t.attribute.err_lex[2] = '\0';
+
+		   while (c != '\n')
+		   {
+			   c = b_getc(sc_buf);
+		   }
 		   return t;
 	   }
    }
@@ -288,7 +300,7 @@ which is being processed by the scanner.
 	  return t;
    }
 
-   else {
+   else if (isdigit(c) || isalpha(c)){
 	   lexstart = b_getc_offset(sc_buf);
 	   b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // setting mark at the beginning
 
