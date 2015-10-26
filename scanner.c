@@ -89,7 +89,8 @@ which is being processed by the scanner.
        
    char* lexeme = NULL;
    int iterator = 0;
-                
+   char isFirstString = '1';
+
         while (1){ /* endless loop broken by token returns it will generate a warning */
                 
  //       GET THE NEXT SYMBOL FROM THE INPUT BUFFER 
@@ -233,10 +234,10 @@ which is being processed by the scanner.
 
 	   c = b_getc(sc_buf);
 	   b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // +1 as current letter is "
-       lexstart=b_getc_offset(sc_buf); // Start of string lexem
+       lexstart=b_mark(sc_buf); // Start of string lexem
 	 
-
       while(c != '"') {
+
 				/* If a newline character has been encountered, increment the line number counter */
 				if(c== '\n' || c == 'SEOF')
 				{
@@ -267,21 +268,23 @@ which is being processed by the scanner.
 				}
 				c = b_getc(sc_buf);
       }
+	  
+	  t.attribute.str_offset = b_size(str_LTBL);
+
 	  lexend = b_getc_offset(sc_buf ); // get lexend after we hit second "
 
 	  b_retract_to_mark(sc_buf); // return to mark
 
 	  while (lexstart != lexend){ // And put the string into str_LTBL
 		  c = b_getc(sc_buf);
+		  if (c != '"')
 		  b_addc(str_LTBL, c);
 		  lexstart++;
 	  }
 
 	  b_addc(str_LTBL, '\0');
-
-	  t.code = STR_T;	
-	  t.attribute.str_offset = b_size(str_LTBL);
-	  c = b_getc(sc_buf);
+	  t.code = STR_T;		  
+	//  c = b_getc(sc_buf);
 	  return t;
    }
 
@@ -323,15 +326,7 @@ which is being processed by the scanner.
 
 	   b_addc(lex_buf, '\0'); /*Make it C-Type*/
 
-	   lexeme = (char *)malloc(b_size(lex_buf)); // make a lexeme
-
-	   if (lexeme != NULL){
-		   for (iterator = 0; iterator < b_size(lex_buf); iterator++){
-			   lexeme[iterator] = b_getc(lex_buf);
-		   }
-	   }
-
-	   t = aa_table[state](lexeme);
+	   t = aa_table[state](lex_buf->cb_head);
 
 	   free(lexeme);
 	   b_destroy(lex_buf);
