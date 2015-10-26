@@ -101,11 +101,8 @@ which is being processed by the scanner.
    if (c == 'SEOF') {t.code = SEOF_T; return t;}
    else if (c == '\n') {line++; continue;}
 
-   else if (c == ' ') ;
-
-   else if (c == ' ') { continue; }
+   else if (c == ' ') continue;
    
-
    else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
    //If the input file does not have a proper end of file statement, and the
    //buffer reaches the end of buffer, return end of file token
@@ -116,8 +113,8 @@ which is being processed by the scanner.
 	   return t;
    }
 
-   else if (c == '	') continue;
-   else if (c == '\0') { return t; }
+   else if (c == '\t') continue;
+   else if (c == '\0') continue;
    else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
@@ -343,7 +340,7 @@ which is being processed by the scanner.
 		   c = b_getc(sc_buf);
 	   }
 
-	   if (accept == ASWR) // If it's accept with retruct
+	   if (accept == ASWR) // If it's accept with retruct  0123456701234567012345670
 	   {
 		   b_retract(sc_buf);
 	   }
@@ -353,7 +350,10 @@ which is being processed by the scanner.
 
 	   if (lex_buf == NULL)
 	   {
-		   // so smth fere
+		   ++scerrnum;
+		   t.code =ERR_T;
+	       strcpy(t.attribute.err_lex,"RUN TIME ERROR");
+			return t;
 	   }
 
 	   b_retract_to_mark(sc_buf);
@@ -368,7 +368,7 @@ which is being processed by the scanner.
 	   b_addc(lex_buf, '\0'); /*Make it C-Type*/
 
 	   t = aa_table[state](lex_buf->cb_head);
-	   c = b_getc(sc_buf);
+	
 	   free(lexeme);
 	   b_destroy(lex_buf);
 	   return t;

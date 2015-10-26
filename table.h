@@ -66,20 +66,20 @@ int  st_table[ ][TABLE_COLUMNS] = {
 #define NOAS     -1  /* not accepting state */
 
 int as_table[ ] = {
-	NOAS,
-	NOAS,
-	ASWR,
-	ASNR,
-	NOAS,
-	ASWR,
-	NOAS,
-	NOAS,
-	ASWR,
-	NOAS,
-	ASWR,
-	ASWR,
-	ASNR,
-	ASWR
+	NOAS,/* State0 */
+	NOAS,/* State1 */
+	ASWR,/* State2 */
+	ASNR,/* State3 */
+	NOAS,/* State4 */
+	ASWR,/* State5 */
+	NOAS,/* State6 */
+	NOAS,/* State7 */
+	ASWR,/* State8 */
+	NOAS,/* State9 */
+	ASWR,/* State10 */
+	NOAS,/* State11 */
+	ASNR,/* State12 */
+	ASWR/* State13 */
 };
 
 /* Accepting action function declarations */
