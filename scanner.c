@@ -270,56 +270,64 @@ which is being processed by the scanner.
 
    else if (c == '"'){ // String start. MAY BE FINISHED. MUST  BE TESTED
 
-	   c = b_getc(sc_buf);
-	   b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // +1 as current letter is "
-       lexstart=b_mark(sc_buf); // Start of string lexem
-	 
-      while(c != '"') {
-				/* If a newline character has been encountered, increment the line number counter */
+	  b_setmark (sc_buf,(b_getc_offset(sc_buf)));
+			lexstart=b_getc_offset(sc_buf);
+			c = b_getc(sc_buf);
+
+			while(c != '"')
+			{
+				/* If \n, increase line counter */
 				if(c== '\n' || c == 'SEOF')
 				{
 					++line;
 				}
-				/* If '\0' is encountered, return an error token */
-				if(c== '\0')
-				{ 
-					lexend = b_getc_offset(sc_buf);
 
-					b_setmark(sc_buf, lexstart);
+				/* If '\0', return an error token */
+				if(c == '\0')
+				{
+					lexend =(b_getc_offset(sc_buf));
+					t.code = ERR_T;	
+					b_setmark(sc_buf,lexstart-1);
 					b_retract_to_mark(sc_buf);
 
-					while (lexstart != lexend)
+					while(lexstart <= lexend)
 					{
-						c = b_getc(sc_buf);
-						b_addc(str_LTBL, c);
+						c=b_getc(sc_buf);
+						if(errLexIt <ERR_LEN)
+							t.attribute.err_lex[errLexIt++]=c;
 						++lexstart;
 					}
-					b_addc(str_LTBL, '\0');
-					t.attribute.str_offset = b_size(str_LTBL);
-					t.code = STR_T;
-					errLexIt = 0;
-					return t;
+
+					if(errLexIt > (ERR_LEN-3))
+					{
+						t.attribute.err_lex[ERR_LEN-3]='.';
+						t.attribute.err_lex[ERR_LEN-2]='.';
+						t.attribute.err_lex[ERR_LEN-1]='.';
+						t.attribute.err_lex[ERR_LEN]='\0';
+					}
+
+					b_retract(sc_buf);
+					return t;					
 				}
+
 				c = b_getc(sc_buf);
-      }
-	  
-	  t.attribute.str_offset = b_size(str_LTBL);
+			}
 
-	  lexend = b_getc_offset(sc_buf ); // get lexend after we hit second "
-
-	  b_retract_to_mark(sc_buf); // return to mark
-
-	  while (lexstart != lexend){ // And put the string into str_LTBL
-		  c = b_getc(sc_buf);
-		  if (c != '"')
-		  b_addc(str_LTBL, c);
-		  lexstart++;
-	  }
-
-	  b_addc(str_LTBL, '\0');
-	  t.code = STR_T;		  
-	//  c = b_getc(sc_buf);
-	  return t;
+			t.code = STR_T;	
+			t.attribute.str_offset = b_size(str_LTBL);
+			lexend = (b_getc_offset(sc_buf)-1);
+			b_retract_to_mark(sc_buf);
+			
+			while(lexstart != lexend)
+			{
+				c = b_getc(sc_buf);
+				b_addc(str_LTBL,c);
+				++lexstart;
+			}
+			
+			b_addc(str_LTBL,'\0');
+			c = b_getc(sc_buf);
+			return t;
    }
 
    else if (isdigit(c) || isalpha(c)){
