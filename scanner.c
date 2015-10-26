@@ -89,7 +89,7 @@ which is being processed by the scanner.
        
    char* lexeme = NULL;
    int iterator = 0;
-   char isFirstString = '1';
+   int errLexIt = 0;
 
         while (1){ /* endless loop broken by token returns it will generate a warning */
                 
@@ -290,18 +290,14 @@ which is being processed by the scanner.
 
 					while (lexstart != lexend)
 					{
-						printf("sdf");
 						c = b_getc(sc_buf);
-						if (lexend - lexstart < ERR_LEN - 3) {
-					    	t.attribute.err_lex[lexend - lexstart] = c;
-						}
-						else {
-							t.attribute.err_lex[lexend - lexstart] = '.';
-						}
+						b_addc(str_LTBL, c);
 						++lexstart;
 					}
-					t.attribute.err_lex[lexstart] = '\0';
-					t.code = ERR_T;
+					b_addc(str_LTBL, '\0');
+					t.attribute.str_offset = b_size(str_LTBL);
+					t.code = STR_T;
+					errLexIt = 0;
 					return t;
 				}
 				c = b_getc(sc_buf);
