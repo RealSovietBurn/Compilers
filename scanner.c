@@ -309,7 +309,6 @@ which is being processed by the scanner.
 					b_retract(sc_buf);
 					return t;					
 				}
-
 				c = b_getc(sc_buf);
 			}
 
@@ -369,7 +368,7 @@ which is being processed by the scanner.
 	   b_addc(lex_buf, '\0'); /*Make it C-Type*/
 
 	   t = aa_table[state](lex_buf->cb_head);
-
+	   c = b_getc(sc_buf);
 	   free(lexeme);
 	   b_destroy(lex_buf);
 	   return t;
