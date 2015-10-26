@@ -268,8 +268,9 @@ which is being processed by the scanner.
    else if (c == '"'){ // String start.
 
 	  b_setmark (sc_buf,(b_getc_offset(sc_buf)));
-			lexstart=b_getc_offset(sc_buf);
-			c = b_getc(sc_buf);
+			
+	  lexstart=b_getc_offset(sc_buf);
+	  c = b_getc(sc_buf);
 
 			while(c != '"')
 			{
