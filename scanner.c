@@ -117,7 +117,7 @@ which is being processed by the scanner.
    }
 
    else if (c == '	') continue;
-   else if (c == '\0') { return t; }
+   else if (c == '\0');
    else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
@@ -368,7 +368,8 @@ which is being processed by the scanner.
 	   b_addc(lex_buf, '\0'); /*Make it C-Type*/
 
 	   t = aa_table[state](lex_buf->cb_head);
-	   c = b_getc(sc_buf);
+	   
+	   if(t.code == ERR_T) c = b_getc(sc_buf);
 	   free(lexeme);
 	   b_destroy(lex_buf);
 	   return t;
