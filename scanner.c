@@ -100,7 +100,12 @@ which is being processed by the scanner.
 /* special cases or token driven processing */       
    if (c == 'SEOF') {t.code = SEOF_T; return t;}
    else if (c == '\n') {line++; continue;}
+
    else if (c == ' ') ;
+
+   else if (c == ' ') { continue; }
+   
+
    else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
    //If the input file does not have a proper end of file statement, and the
    //buffer reaches the end of buffer, return end of file token
@@ -110,7 +115,9 @@ which is being processed by the scanner.
 	   t.code = SEOF_T;
 	   return t;
    }
+
    else if (c == '\0');
+   else if (c == '\0') { return t; }
    else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
@@ -148,6 +155,7 @@ which is being processed by the scanner.
 		   t.attribute.rel_op = LT;
 		   return t;
 	   }
+	
   }
    // Have to delete this pragma region before submission, as it is c++ thing
    // err_lex MAY BE WRONG. PAY ATTENTION
@@ -267,7 +275,6 @@ which is being processed by the scanner.
        lexstart=b_mark(sc_buf); // Start of string lexem
 	 
       while(c != '"') {
-
 				/* If a newline character has been encountered, increment the line number counter */
 				if(c== '\n' || c == 'SEOF')
 				{
@@ -283,6 +290,7 @@ which is being processed by the scanner.
 
 					while (lexstart != lexend)
 					{
+						printf("sdf");
 						c = b_getc(sc_buf);
 						if (lexend - lexstart < ERR_LEN - 3) {
 					    	t.attribute.err_lex[lexend - lexstart] = c;
@@ -404,7 +412,7 @@ If you place the #define NDEBUG directive ("no debugging")
 in the source code before the #include <assert.h> directive,
 the effect is to comment out the assert statement.
 */
-//       assert(next != IS);
+     // assert(next != IS);
 
 /*
 The other way to include diagnostics in a program is to use
