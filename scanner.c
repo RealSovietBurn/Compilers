@@ -1,3 +1,4 @@
+
 /* Filename: scanner.c
 /* PURPOSE:
  *    SCANNER.C: Functions implementing a Lexical Analyzer (Scanner)
@@ -81,7 +82,6 @@ which is being processed by the scanner.
 lexend is the offset from the beginning of the char buffer of the
 input buffer (sc_buf) to the last character of the current lexeme,
 which is being processed by the scanner.
-
 */ 
         
         
@@ -101,11 +101,6 @@ which is being processed by the scanner.
   
    if (c == '\n') {line++; continue;}
    else if (c == ' ') continue;
- 
-  // else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
-   //If the input file does not have a proper end of file statement, and the
-   //buffer reaches the end of buffer, return end of file token
-   //otherwise, the buffer will infinitely loop and print the last error token
 
    else if (c == 255) { 
 	   t.code = SEOF_T;
@@ -393,16 +388,14 @@ and to "defend" from producing unexpected results.
 assert() is a macro that expands to an if statement;
 if test evaluates to false (zero) , assert aborts the program
 (by calling abort()) and sends the following message on stderr:
-
 Assertion failed: test, file filename, line linenum
-
 The filename and linenum listed in the message are the source file name
 and line number where the assert macro appears.
 If you place the #define NDEBUG directive ("no debugging")
 in the source code before the #include <assert.h> directive,
 the effect is to comment out the assert statement.
 */
-     // assert(next != IS);
+      assert(next != IS);
 
 /*
 The other way to include diagnostics in a program is to use
