@@ -98,24 +98,23 @@ which is being processed by the scanner.
         c = b_getc(sc_buf);
             
 /* special cases or token driven processing */       
-   if (c == 'SEOF') {t.code = SEOF_T; return t;}
-   else if (c == '\n') {line++; continue;}
-
+  
+   if (c == '\n') {line++; continue;}
    else if (c == ' ') continue;
-   
-   else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
+ 
+  // else if (b_eob(sc_buf)) { t.code = SEOF_T; return t;}
    //If the input file does not have a proper end of file statement, and the
    //buffer reaches the end of buffer, return end of file token
    //otherwise, the buffer will infinitely loop and print the last error token
 
-   else if (c == 255) {
+   else if (c == 255) { 
 	   t.code = SEOF_T;
 	   return t;
    }
    else if (c == '\t') continue;
    else if (c == '\0') continue;
    else if (c == '	') continue;
-   else if (c == '{'){ t.code = LBR_T; /*no attribute */ return t; }
+   else if (c == '{'){ t.code = LBR_T; return t; }
    else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
    else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
    else if(c == '}'){ t.code = RBR_T; return t; }
@@ -275,9 +274,9 @@ which is being processed by the scanner.
 			while(c != '"')
 			{
 				/* If \n, increase line counter */
-				if(c== '\n' || c == 'SEOF')
+				if(c== '\n' || c == 255)
 				{
-					++line;
+					line++;
 				}
 
 				/* If '\0', return an error token */
@@ -288,12 +287,11 @@ which is being processed by the scanner.
 					b_setmark(sc_buf,lexstart-1);
 					b_retract_to_mark(sc_buf);
 
-					while(lexstart <= lexend)
+					while((lexstart++) <= lexend)
 					{
 						c=b_getc(sc_buf);
 						if(errLexIt <ERR_LEN)
 							t.attribute.err_lex[errLexIt++] = c;
-						++lexstart;
 					}
 
 					if(errLexIt > (ERR_LEN-3))
@@ -315,11 +313,10 @@ which is being processed by the scanner.
 			lexend = (b_getc_offset(sc_buf)-1);
 			b_retract_to_mark(sc_buf);
 			
-			while(lexstart != lexend)
+			while((lexstart++) != lexend)
 			{
 				c = b_getc(sc_buf);
 				b_addc(str_LTBL,c);
-				++lexstart;
 			}
 			
 			b_addc(str_LTBL,'\0');
@@ -327,9 +324,9 @@ which is being processed by the scanner.
 			return t;
    }
 
-   else if (isdigit(c) || isalpha(c)){
+   else if (isdigit(c) || isalpha(c)){ /* If letter or a digit */
 	   
-				state=0;
+				state = 0;
 	            b_setmark ( sc_buf,(b_getc_offset(sc_buf)-1));
 				lexstart = b_mark(sc_buf);
 				b_retract(sc_buf); /* retract, as mark - 1 */
@@ -347,7 +344,7 @@ which is being processed by the scanner.
 
 				lexend = b_getc_offset(sc_buf);	
 				
-				lex_buf = b_create(lexend - lexstart +1,1,'f');	/* create a temp buffer to hold the lexeme */
+				lex_buf = b_create(lexend - lexstart + 1, 1, 'f');	/* create a temp buffer to hold the lexeme */
 				
 				if(lex_buf == NULL)
 				{
@@ -359,15 +356,15 @@ which is being processed by the scanner.
 
 				b_retract_to_mark(sc_buf);
 
-				while(lexstart != lexend)
+				while((lexstart++) != lexend)
 				{
 					c=b_getc(sc_buf);	
 					b_addc(lex_buf,c);
-					++lexstart;
 				}
 
-				b_addc(lex_buf,'\0'); /* making it C-Type string */				
-				t = aa_table[state](lex_buf->cb_head);
+				b_addc(lex_buf,'\0'); /* C-Type string */	
+			    /* Setting mark to 0, to get the address of the array*/
+				t = aa_table[state](b_setmark(lex_buf, 0));
 				b_destroy(lex_buf);
 				return t;
    } else {
@@ -375,15 +372,7 @@ which is being processed by the scanner.
 	   t.attribute.err_lex[0] = c;
 	   t.attribute.err_lex[1] = '\0';
 	   return t;
-   }
-   /*
-     CHECK OTHER CHARS HERE if NEEDED, SET A TOKEN AND RETURN IT.
-     FOR ILLEGAL CHARACTERS SET ERROR TOKEN. 
-     THE ILLEGAL CHAR IS THE ATTRIBUTE OF THE ERROR TOKEN 
-     IN A CASE OF RUNTIME ERROR, THE FUNCTION MUST STORE 
-     A NON-NEGATIVE NUMBER INTO THE GLOBAL VARIABLE scerrnum
-     AND RETURN AN ERROR TOKEN. THE ERROR TOKEN ATTRIBUTE MUST
-     BE THE STRING "RUN TIME ERROR: "        */        
+   }  
    }//end while(1)
 }
 
@@ -466,7 +455,7 @@ Token aa_func02(char lexeme[]){
 	Token t;
 	int keyword = iskeyword(lexeme);
 
-	if (keyword > 0) {
+	if (keyword >= 0) {
 		t.code = KW_T;
 		t.attribute.kwt_idx = keyword;
 		return t;
@@ -509,7 +498,7 @@ Token aa_func08(char lexeme[]){
 	floatValue = atof(lexeme);
 
 	/*  if it's not in range */
-	if ((float)floatValue > FLT_MAX) // should add <. Somehow floatValue < FLT_MIN is not working
+	if (((float)floatValue < FLT_MIN && (float)floatValue > 0.0) || (float)floatValue > FLT_MAX ) // should add <. Somehow floatValue < FLT_MIN is not working
 	{
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
@@ -532,7 +521,7 @@ Token aa_func05(char lexeme[]){
 	int intValue = 0;
 
 	intValue = atoi(lexeme);
-	if (sizeof(intValue) > sizeof(INT_MAX) || sizeof(intValue) > sizeof(INT_MIN)){
+	if (intValue > SHRT_MAX || intValue < SHRT_MIN){
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
 		t.attribute.err_lex[ERR_LEN] = '\0';
