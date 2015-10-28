@@ -9,7 +9,18 @@
  *    Version: 1.15.02
  *    Date: 29 September 2015
  *******************************************************************
- *    REPLACE THIS HEADER WITH YOUR HEADER
+ *    
+File name: scanner.c
+Compiler: MS Visual Studio 2012
+Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, STUDENT NUMBER HERE OLEG
+Course: CST 8152 – Compilers, Lab Section: 012
+Assignment: 2
+Date: October 27th, 2015
+Professor: Sv. Ranev
+Purpose: Takes in a file, and allows processing and handling of text character by character.
+		 It allows for error handling, and allows for assignment of tokens according to
+		 the status of literals, keywords, and identifiers found in the processed PLATYPUS file.
+Function list: scanner_init()			   mlwpar_next_token()			   get_next_token()			   char_class()			   aa_func02()			   aa_func05()			   aa_func08()			   aa_func10()			   aa_func12()			   atool()			   iskeyword()
  *******************************************************************
  */
 
@@ -56,6 +67,22 @@ static int get_next_state(int, char, int *); /* state machine function */
 static int iskeyword(char * kw_lexeme); /*keywords lookup functuion */
 static long atool(char * lexeme); /* converts octal string to decimal value */
 
+
+
+/******************************************************************************
+Purpose:		  This initializes and sets the buffer to it's default function
+				  to properly be able to read the incoming file.
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: b_setmark()
+				  b_retract_to_mark()
+				  b_reset()
+				  b_isempty()
+Parameters:		  BufferDescriptor - pointer
+Return value:	  int
+Algorithm:		  Takes a BufferDescriptor as a pointer and resets it
+			      so that it may begin reading in a file.
+*******************************************************************************/
 int scanner_init(Buffer * sc_buf) {
   	if(b_isempty(sc_buf)) return EXIT_FAILURE;/*1*/
 	/* in case the buffer has been read previously  */
@@ -66,6 +93,29 @@ int scanner_init(Buffer * sc_buf) {
 	return EXIT_SUCCESS;/*0*/
 /*   scerrnum = 0;  *//*no need - global ANSI C */
 }
+
+/******************************************************************************
+Purpose:		  Returns the recognized token after processing 
+				  the incoming characters
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: b_setmark()
+				  b_getc()
+				  b_getc_offset()
+				  b_retract()
+				  b_retract_to_mark()
+				  b_addc()
+				  b_destroy()
+				  isdigit()
+				  isalpha()
+Parameters:		  BufferDescriptor - pointer
+Return value:	  Token			   - the recognized token
+Algorithm:		  Takes a BufferDescriptor in, reads the incoming characters
+				  and processes them according to a variety of specifications
+				  it handles the retraction, adding, and handling of the 
+				  incoming characters in order to properly recognize
+				  the next token to return
+*******************************************************************************/
 
 Token mlwpar_next_token(Buffer * sc_buf)
 {
@@ -372,7 +422,20 @@ which is being processed by the scanner.
 }
 
 
-// Do not modify it
+/******************************************************************************
+Purpose:		  Returns the next state of the transition table
+Author:			  Sv. Ranev
+History/Versions: 1.0
+Called functions: assert()         - in debug
+Parameters:		  int			   - incoming state
+				  char			   - the current char
+				  accept		   - pointer to the accepted function
+Return value:	  int			   - the next state
+Algorithm:		  Takes in the accepted parameters and consults the transition
+				  table to compute the next accepted state as well as the
+				  required function to compute the next received characters
+				  in the buffer.
+*******************************************************************************/
 int get_next_state(int state, char c, int *accept)
 {
 	int col;
@@ -395,7 +458,7 @@ If you place the #define NDEBUG directive ("no debugging")
 in the source code before the #include <assert.h> directive,
 the effect is to comment out the assert statement.
 */
-      assert(next != IS);
+     // assert(next != IS);
 
 /*
 The other way to include diagnostics in a program is to use
@@ -414,6 +477,19 @@ or #undef DEBUF is used - see the top of the file.
 	*accept = as_table[next];
 	return next;
 }
+
+/******************************************************************************
+Purpose:		  Returns the next column in the transition table 
+		          for the according character class
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: isdigit()
+				  isalpha()
+Parameters:		  char			   - character to check the column with
+Return value:	  int			   - the appropriate column
+Algorithm:		  Takes in the character, and returns the next column in the
+				  transition table according to a variety of conditions
+*******************************************************************************/
 
 int char_class (char c)
 {
@@ -443,6 +519,19 @@ int char_class (char c)
 }
 
 
+/******************************************************************************
+Purpose:		  Allows handling of the AVID token
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: iskeyword()
+				  strlen()
+				  strncpy()
+Parameters:		  char			   - string to use
+Return value:	  Token			   - the resulting token
+Algorithm:		  Takes in the character, and checks if it is a keyword identifier
+				  or a variable identifier according to a variety of computations
+*******************************************************************************/
+
 // Accept AVID token
 Token aa_func02(char lexeme[]){
 	Token t;
@@ -465,6 +554,18 @@ Token aa_func02(char lexeme[]){
 	}
 }
 
+
+/******************************************************************************
+Purpose:		  Allows handling of the SVID token
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: strlen()
+				  strncpy()
+Parameters:		  char			   - string to use
+Return value:	  Token			   - the resulting token
+Algorithm:		  Takes in the character, and checks if it is a variable
+*******************************************************************************/
+
 // Accept SVID token
 Token aa_func03(char lexeme[]){
 	Token t;
@@ -481,6 +582,19 @@ Token aa_func03(char lexeme[]){
   return t;
 }
 
+/******************************************************************************
+Purpose:		  Allows for FPL token handling
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: atof()
+				  strncpy()
+Parameters:		  char			   - string to use
+Return value:	  Token			   - the resulting token
+Algorithm:		  Takes in the character, and checks if it can be seen as a
+				  floating point literal. It also ensures proper error
+				  handling and assignment of error tokens if the literal
+				  falls outside accepted values
+*******************************************************************************/
 
 // FPL token
 Token aa_func08(char lexeme[]){
@@ -506,6 +620,19 @@ Token aa_func08(char lexeme[]){
 	return t;
 }
 
+/******************************************************************************
+Purpose:		  Allows for IL token handling
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: atoi()
+				  strncpy()
+Parameters:		  char			   - string to use
+Return value:	  Token			   - the resulting token
+Algorithm:		  Takes in the character, and checks if it can be seen as a
+				  integer literal. It also ensures proper error
+				  handling and assignment of error tokens if the literal
+				  falls outside accepted values
+*******************************************************************************/
 
 /* IL*/
 Token aa_func05(char lexeme[]){
@@ -525,6 +652,21 @@ Token aa_func05(char lexeme[]){
   return t;
 }
 
+
+/******************************************************************************
+Purpose:		  Allows for OIL token handling
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: atool()
+				  strncpy()
+Parameters:		  char			   - string to use
+Return value:	  Token			   - the resulting token
+Algorithm:		  Takes in the character, and checks if it can be seen as a
+				  integer literal by processing an octal as an integer.
+				  It also ensures proper error handling and assignment
+				  of error tokens if the literal falls outside 
+				  accepted values
+*******************************************************************************/
 // OIL
 Token aa_func10(char lexeme[]){
 	
@@ -549,7 +691,18 @@ Token aa_func10(char lexeme[]){
 	return t;
 }
 
-
+/******************************************************************************
+Purpose:		  Allows for ERR token handling
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: strlen()
+				  strcpy()
+Parameters:		  char			   - string to use
+Return value:	  Token			   - the resulting token
+Algorithm:		  Takes in the character, and checks if it falls inside
+			      the accepted boundaries for error handling. It also handles
+				  proper assignment of the error token
+*******************************************************************************/
 // Error token
 Token aa_func12(char lexeme[]){
 
@@ -574,15 +727,32 @@ Token aa_func12(char lexeme[]){
 }
 
 
-
-
+/******************************************************************************
+Purpose:		  Allows for transformation of characters to literals
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: strtol()
+Parameters:		  char			   - string to use
+Return value:	  Long			   - the resulting value
+Algorithm:		  Takes in the character, and transforms it into it's literal
+			      value, then returns it.
+*******************************************************************************/
 long atool(char * lexeme){
 	long val = 0;
 	char *ptr = NULL;
 	val = strtol(lexeme, &ptr, 8);
 	return val;
 }
-
+/******************************************************************************
+Purpose:		  Compares the taken string to keyword values
+Author:			  Oleg Matviyishyn and Nick Horlings
+History/Versions: 1.0
+Called functions: strcmp()
+Parameters:		  char			   - string to use
+Return value:	  Long			   - the resulting value
+Algorithm:		  Takes in the string, and compares it to the keyword table
+				  to process it as a keyword identifer or otherwise
+*******************************************************************************/
 int iskeyword(char * kw_lexeme){
 	
 	int i = 0;
