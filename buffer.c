@@ -41,7 +41,7 @@
 /************************************************************************************************************************
 Purpose: Creates the buffer, sets initial variables
 Author: Oleg Matviyishyn
-History/Versions: 1.02 2015-09-29
+History/Versions: 1.02 2015-10-14
 Called functions: calloc(c,s) 
 Parameters: short init_capacity >= 0, char inc_factor > 0 but < 256, char o_mode must be 'a', 'm' or 'f'
 Return value: Buffer * b if success, NULL if failure
@@ -113,7 +113,7 @@ Buffer * b_create (short init_capacity, char inc_factor, char o_mode) {
 /************************************************************************************************************************
 Purpose: Adds character to the buffer, increments the size of the buffer according to the mode
 Author: Oleg Matviyishyn
-History/Versions: 1.02 2015-09-29
+History/Versions: 1.05 2015-10-27
 Called functions: malloc(s), realloc(p,s), free(p), 
 Parameters: pBuffer const, char
 Return value: pBD is success, NULL is failure
@@ -123,7 +123,6 @@ Algorithm: Add character to the buffer. If character can't be added to the buffe
 pBuffer b_addc(pBuffer const pBD, char symbol){ 
 
 	short short_inc_factor = 0;
-	short i = 0; /* Variable for loop iteration */
 	short newCapacity = 0;
 	short availableSpace = 0;
 	short newIncrement = 0;
