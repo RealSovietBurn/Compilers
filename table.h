@@ -9,7 +9,11 @@
  * 
 File name: table.h
 Compiler: MS Visual Studio 2012
+<<<<<<< HEAD
 Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, 040-764-529
+=======
+Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, STUDENT NUMBER HERE OLEG
+>>>>>>> origin/master
 Course: CST 8152 – Compilers, Lab Section: 012
 Assignment: 2
 Date: October 27th, 2015
@@ -17,7 +21,11 @@ Professor: Sv. Ranev
 Purpose: This header file appropriates values
 		 for the transition table used in handling
 		 the scanner's movements while processing
+<<<<<<< HEAD
 		 a file and provides accepting functions definitions
+=======
+		 a file
+>>>>>>> origin/master
 Function list: aa_func02()			   aa_func05()			   aa_func08()			   aa_func10()			   aa_func12()
  ***************************************************
  */
@@ -51,7 +59,11 @@ Function list: aa_func02()			   aa_func05()			   aa_func08()			   aa_func10()
 
 /* State transition table definition */
 
+<<<<<<< HEAD
 #define TABLE_COLUMNS 7 
+=======
+#define TABLE_COLUMNS 7 // check transition table
+>>>>>>> origin/master
 /*transition table - type of states defined in separate table */
 int  st_table[ ][TABLE_COLUMNS] = {
 //				[a-zA-z]   0    [1-7]  [8-9]    .        %        other
