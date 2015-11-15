@@ -59,11 +59,8 @@ Function list: aa_func02()			   aa_func05()			   aa_func08()			   aa_func10()
 
 /* State transition table definition */
 
-<<<<<<< HEAD
-#define TABLE_COLUMNS 7 
-=======
 #define TABLE_COLUMNS 7 // check transition table
->>>>>>> origin/master
+
 /*transition table - type of states defined in separate table */
 int  st_table[ ][TABLE_COLUMNS] = {
 //				[a-zA-z]   0    [1-7]  [8-9]    .        %        other
