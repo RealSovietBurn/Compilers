@@ -1,3 +1,21 @@
+/* Bit Masks */
+/* zero */
+#define BIT_MASK_ZERO 0x0000			/*	0000 0000 0000 0000	*/
+/* default */
+#define BIT_MASK_DEFAULT 0xFFF8			/*	1111 1111 1111 1000	*/
+/* reset */
+#define BIT_MASK_RESET_UPDATE_FLAG 0xFFFE	/*	1111 1111 1111 1110	*/
+/* update */
+#define BIT_MASK_SET_UPDATE_FLAG 0x0001		/*	0000 0000 0000 0001	*/
+/* data type indicator */
+#define BIT_MASK_RESET_DTI 0xFFF9		/*	1111 1111 1111 1001	*/
+/* integer */
+#define BIT_MASK_INTEGER 0x0004		/*	0000 0000 0000 0100	*/
+/* floating point */
+#define BIT_MASK_FLOAT 0x0002		/*	0000 0000 0000 0010	*/
+/* string */
+#define BIT_MASK_STRING 0x0006		/*	0000 0000 0000 0110	*/
+
 typedef union InitialValue {
  int int_val; /* integer variable initial value */
  float fpl_val; /* floating-point variable initial value */

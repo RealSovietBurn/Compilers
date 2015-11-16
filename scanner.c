@@ -12,11 +12,7 @@
  *    
 File name: scanner.c
 Compiler: MS Visual Studio 2012
-<<<<<<< HEAD
 Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, 040-764-529
-=======
-Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, STUDENT NUMBER HERE OLEG
->>>>>>> origin/master
 Course: CST 8152 – Compilers, Lab Section: 012
 Assignment: 2
 Date: October 27th, 2015
@@ -71,25 +67,6 @@ static int get_next_state(int, char, int *); /* state machine function */
 static int iskeyword(char * kw_lexeme); /*keywords lookup functuion */
 static long atool(char * lexeme); /* converts octal string to decimal value */
 
-<<<<<<< HEAD
-=======
-
-
-/******************************************************************************
-Purpose:		  This initializes and sets the buffer to it's default function
-				  to properly be able to read the incoming file.
-Author:			  Oleg Matviyishyn and Nick Horlings
-History/Versions: 1.0
-Called functions: b_setmark()
-				  b_retract_to_mark()
-				  b_reset()
-				  b_isempty()
-Parameters:		  BufferDescriptor - pointer
-Return value:	  int
-Algorithm:		  Takes a BufferDescriptor as a pointer and resets it
-			      so that it may begin reading in a file.
-*******************************************************************************/
->>>>>>> origin/master
 int scanner_init(Buffer * sc_buf) {
   	if(b_isempty(sc_buf)) return EXIT_FAILURE;/*1*/
 	/* in case the buffer has been read previously  */
@@ -104,11 +81,7 @@ int scanner_init(Buffer * sc_buf) {
 /******************************************************************************
 Purpose:		  Returns the recognized token after processing 
 				  the incoming characters
-<<<<<<< HEAD
 Authors:		  Oleg Matviyishyn and Nick Horlings
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: b_setmark()
 				  b_getc()
@@ -145,7 +118,6 @@ input buffer (sc_buf) to the last character of the current lexeme,
 which is being processed by the scanner.
 */ 
         
-<<<<<<< HEAD
    /* Iterator for err_lex */
    int errLexIt = 0;
 
@@ -153,18 +125,6 @@ which is being processed by the scanner.
    while (1){ /* endless loop broken by token returns it will generate a warning */
                 
  /*       GET THE NEXT SYMBOL FROM THE INPUT BUFFER */ 
-=======
-        
-     //   DECLARE YOUR VARIABLES HERE IF NEEDED 
-       
-   char* lexeme = NULL;
-   int iterator = 0;
-   int errLexIt = 0;
-
-        while (1){ /* endless loop broken by token returns it will generate a warning */
-                
- //       GET THE NEXT SYMBOL FROM THE INPUT BUFFER 
->>>>>>> origin/master
         
         c = b_getc(sc_buf);
             
@@ -172,11 +132,7 @@ which is being processed by the scanner.
   
    if (c == '\n') {line++; continue;}
    else if (c == ' ') continue;
-<<<<<<< HEAD
    /*If SEOF*/
-=======
-
->>>>>>> origin/master
    else if (c == 255) { 
 	   t.code = SEOF_T;
 	   return t;
@@ -184,7 +140,6 @@ which is being processed by the scanner.
    else if (c == '\t') continue;
    else if (c == '\0') continue;
    else if (c == '	') continue;
-<<<<<<< HEAD
    else if (c == '{'){ 
 	       t.code = LBR_T; 
 	       return t; 
@@ -233,19 +188,6 @@ which is being processed by the scanner.
 		t.code = SCC_OP_T; 
 		return t; 
    }
-=======
-   else if (c == '{'){ t.code = LBR_T; return t; }
-   else if(c == '+'){ t.code = ART_OP_T; t.attribute.arr_op = PLUS; return t; }
-   else if(c == '-'){ t.code = ART_OP_T; t.attribute.arr_op = MINUS; return t; }
-   else if(c == '}'){ t.code = RBR_T; return t; }
-   else if(c == '/'){ t.code = ART_OP_T; t.attribute.arr_op = DIV; return t; }
-   else if(c == '*'){ t.code = ART_OP_T; t.attribute.arr_op = MULT; return t; }
-   else if(c == '('){ t.code = LPR_T; return t; }
-   else if(c == ')'){ t.code = RPR_T; return t; }
-   else if (c == ','){ t.code = COM_T; return t; }
-   else if (c == ';'){ t.code = EOS_T; return t; }
-   else if (c == '#') { t.code = SCC_OP_T; return t; }
->>>>>>> origin/master
    else if (c == '='){
 	   c = b_getc(sc_buf);
 	   if (c == '=') {
@@ -258,7 +200,6 @@ which is being processed by the scanner.
 	   t.code = ASS_OP_T;
 	   return t;
    }
-<<<<<<< HEAD
    else if (c == '>'){ 
 		t.code = REL_OP_T;
 		t.attribute.rel_op = GT; 
@@ -272,17 +213,6 @@ which is being processed by the scanner.
 		   return t;
 	   }
 	   else { /* is nor >, it's usual rel_op_t; */
-=======
-   else if (c == '>'){ t.code = REL_OP_T; t.attribute.rel_op = GT; return t; }
-   else if (c == '<'){ // there also maybe not equal sign
-	   c = b_getc(sc_buf);
-	   if (c == '>'){
-		   t.code = REL_OP_T;
-		   t.attribute.rel_op = NE; // it's not equal
-		   return t;
-	   }
-	   else { // is nor >, it's usual rel_op_t;
->>>>>>> origin/master
 		   b_retract(sc_buf);
 		   t.code = REL_OP_T; 
 		   t.attribute.rel_op = LT;
@@ -290,13 +220,7 @@ which is being processed by the scanner.
 	   }
 	
   }
-<<<<<<< HEAD
  
-=======
-   // Have to delete this pragma region before submission, as it is c++ thing
-   // err_lex MAY BE WRONG. PAY ATTENTION
-#pragma region logicalOperatorsProcessing
->>>>>>> origin/master
    else  if (c == '.'){
 	  b_setmark(sc_buf, b_getc_offset(sc_buf)-1); // set mark, if there's something wrong after, Maybe it's -1. Must be tested
 	   c = b_getc(sc_buf);
@@ -375,22 +299,12 @@ which is being processed by the scanner.
 		   return t;
 	   }
    }
-<<<<<<< HEAD
 
    else if (c == '!') { /* Trying to process comment; */	
 	   b_setmark(sc_buf, b_getc_offset(sc_buf) - 1); /* Set the mark to the beginning of the comment */
 	   c = b_getc(sc_buf);   
 	   if (c == '<') {
 		   /* processing comment here */
-=======
-#pragma endregion
-
-   else if (c == '!') { // Trying to process comment;	
-	   b_setmark(sc_buf, b_getc_offset(sc_buf) - 1); /* Set the mark to the beginning of the comment */
-	   c = b_getc(sc_buf);   //  b_setmark(sc_buf, b_getc_offset(sc_buf)); // set mark. Maybe its b_getc_offset - 1. Must be tested; Is used for t.attribute.err_lex
-	   if (c == '<') {
-		   // processing comment here
->>>>>>> origin/master
 		   while (c != '\n')
 		   {
 			   c = b_getc(sc_buf);
@@ -398,11 +312,7 @@ which is being processed by the scanner.
 	   } 
 	   else {
 		   t.code = ERR_T;
-<<<<<<< HEAD
 		   b_retract_to_mark(sc_buf); /* If there is an error - return to the beginning of the comment */
-=======
-		   b_retract_to_mark(sc_buf); /* If there is an error - return to the beginning of the comment*/
->>>>>>> origin/master
 		   c = b_getc(sc_buf);	   
 		   t.attribute.err_lex[0] = c;
 		   c = b_getc(sc_buf);
@@ -411,22 +321,14 @@ which is being processed by the scanner.
 
 		   while (c != '\n')
 		   {
-<<<<<<< HEAD
 			   c = b_getc(sc_buf); /* And process everything again */
-=======
-			   c = b_getc(sc_buf);
->>>>>>> origin/master
 		   }
 		   return t;
 	   }
    }
 
 
-<<<<<<< HEAD
    else if (c == '"'){ /* String start. */
-=======
-   else if (c == '"'){ // String start.
->>>>>>> origin/master
 
 	  b_setmark (sc_buf,(b_getc_offset(sc_buf)));
 			
@@ -456,10 +358,7 @@ which is being processed by the scanner.
 							t.attribute.err_lex[errLexIt++] = c;
 					}
 
-<<<<<<< HEAD
 					/* If size of err_lex is more than 20, put three . in the end*/
-=======
->>>>>>> origin/master
 					if(errLexIt > (ERR_LEN-3))
 					{
 						t.attribute.err_lex[ERR_LEN-3] = '.';
@@ -475,10 +374,7 @@ which is being processed by the scanner.
 			}
 
 			t.code = STR_T;	
-<<<<<<< HEAD
 			/* String offset of string token is length of the string */
-=======
->>>>>>> origin/master
 			t.attribute.str_offset = b_size(str_LTBL);
 			lexend = (b_getc_offset(sc_buf)-1);
 			b_retract_to_mark(sc_buf);
@@ -488,11 +384,7 @@ which is being processed by the scanner.
 				c = b_getc(sc_buf);
 				b_addc(str_LTBL,c);
 			}
-<<<<<<< HEAD
 			/* Make it a C-type string*/
-=======
-			
->>>>>>> origin/master
 			b_addc(str_LTBL,'\0');
 			c = b_getc(sc_buf);
 			return t;
@@ -505,20 +397,14 @@ which is being processed by the scanner.
 				lexstart = b_mark(sc_buf);
 				b_retract(sc_buf); /* retract, as mark - 1 */
 				
-<<<<<<< HEAD
 				/* Get letters one by one and check state */
-=======
->>>>>>> origin/master
 				do
 				{
 					c =  b_getc(sc_buf);
 					state = get_next_state(state,c,&accept);
 				} while(accept == NOAS);
 
-<<<<<<< HEAD
 				/* Accept with retract */
-=======
->>>>>>> origin/master
 	            if(accept == ASWR)
 				{
 					b_retract(sc_buf);
@@ -528,10 +414,7 @@ which is being processed by the scanner.
 				
 				lex_buf = b_create(lexend - lexstart + 1, 1, 'f');	/* create a temp buffer to hold the lexeme */
 				
-<<<<<<< HEAD
 				/* If buffer were not created, it's a run time error*/
-=======
->>>>>>> origin/master
 				if(lex_buf == NULL)
 				{
 					t.code =ERR_T;
@@ -540,27 +423,17 @@ which is being processed by the scanner.
 					return t;
 				}
 
-<<<<<<< HEAD
 				/* As lexeme found, get back to the mark in the original buffer*/
 				b_retract_to_mark(sc_buf);
 
 				/* And put it into lex_buf*/
-=======
-				b_retract_to_mark(sc_buf);
-
->>>>>>> origin/master
 				while((lexstart++) != lexend)
 				{
 					c=b_getc(sc_buf);	
 					b_addc(lex_buf,c);
 				}
-<<<<<<< HEAD
 				/* Make a lexeme a C-Type string */
 				b_addc(lex_buf,'\0'); 
-=======
-
-				b_addc(lex_buf,'\0'); /* C-Type string */	
->>>>>>> origin/master
 			    /* Setting mark to 0, to get the address of the array*/
 				t = aa_table[state](b_setmark(lex_buf, 0));
 				b_destroy(lex_buf);
@@ -611,11 +484,7 @@ If you place the #define NDEBUG directive ("no debugging")
 in the source code before the #include <assert.h> directive,
 the effect is to comment out the assert statement.
 */
-<<<<<<< HEAD
       assert(next != IS);
-=======
-     // assert(next != IS);
->>>>>>> origin/master
 
 /*
 The other way to include diagnostics in a program is to use
@@ -638,11 +507,7 @@ or #undef DEBUF is used - see the top of the file.
 /******************************************************************************
 Purpose:		  Returns the next column in the transition table 
 		          for the according character class
-<<<<<<< HEAD
 Author:			  Oleg Matviyishyn
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: isdigit()
 				  isalpha()
@@ -682,11 +547,7 @@ int char_class (char c)
 
 /******************************************************************************
 Purpose:		  Allows handling of the AVID token
-<<<<<<< HEAD
 Author:			  Oleg Matviyishyn
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: iskeyword()
 				  strlen()
@@ -697,7 +558,6 @@ Algorithm:		  Takes in the character, and checks if it is a keyword identifier
 				  or a variable identifier according to a variety of computations
 *******************************************************************************/
 
-<<<<<<< HEAD
 /* Accept AVID token */
 Token aa_func02(char lexeme[]){
 	Token t;
@@ -705,18 +565,10 @@ Token aa_func02(char lexeme[]){
 	int keyword = iskeyword(lexeme);
 
 	/* If index found */
-=======
-// Accept AVID token
-Token aa_func02(char lexeme[]){
-	Token t;
-	int keyword = iskeyword(lexeme);
-
->>>>>>> origin/master
 	if (keyword >= 0) {
 		t.code = KW_T;
 		t.attribute.kwt_idx = keyword;
 		return t;
-<<<<<<< HEAD
 	} else { /* Set AVID */
 		if (strlen(lexeme) > VID_LEN){
 			/* If variable is too large - copy only 20 characters */
@@ -724,13 +576,6 @@ Token aa_func02(char lexeme[]){
 			t.attribute.vid_lex[VID_LEN] = '\0';
 		} else {
 			/* If variable length is fine - copy it as is*/
-=======
-	} else { // Set AVID
-		if (strlen(lexeme) > VID_LEN){
-			strncpy(t.attribute.vid_lex, lexeme, VID_LEN);
-			t.attribute.vid_lex[VID_LEN] = '\0';
-		} else {
->>>>>>> origin/master
 			strcpy(t.attribute.vid_lex, lexeme);
 			t.attribute.vid_lex[strlen(lexeme)] = '\0';
 		}
@@ -742,11 +587,7 @@ Token aa_func02(char lexeme[]){
 
 /******************************************************************************
 Purpose:		  Allows handling of the SVID token
-<<<<<<< HEAD
 Author:			  Nick Horlings
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: strlen()
 				  strncpy()
@@ -755,26 +596,16 @@ Return value:	  Token			   - the resulting token
 Algorithm:		  Takes in the character, and checks if it is a variable
 *******************************************************************************/
 
-<<<<<<< HEAD
 /* Accept SVID token */
 Token aa_func03(char lexeme[]){
 	Token t;
 	if (strlen(lexeme) > VID_LEN) {
 		/* If variable length is too large - copy 19 charactes, character #20 is %*/
-=======
-// Accept SVID token
-Token aa_func03(char lexeme[]){
-	Token t;
-	if (strlen(lexeme) > VID_LEN) {
->>>>>>> origin/master
 		strncpy(t.attribute.vid_lex, lexeme, VID_LEN-1);
 		t.attribute.vid_lex[VID_LEN-1] = '%';
 		t.attribute.vid_lex[VID_LEN] = '\0';
 	} else {
-<<<<<<< HEAD
 		/* If variable length is fine - copy it as is and add % in the end */
-=======
->>>>>>> origin/master
 		strcpy(t.attribute.vid_lex, lexeme);
 		t.attribute.vid_lex[strlen(lexeme)] = '%';
 		t.attribute.vid_lex[strlen(lexeme)]= '\0';
@@ -785,11 +616,7 @@ Token aa_func03(char lexeme[]){
 
 /******************************************************************************
 Purpose:		  Allows for FPL token handling
-<<<<<<< HEAD
 Author:			  Oleg Matviyishyn
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: atof()
 				  strncpy()
@@ -801,11 +628,7 @@ Algorithm:		  Takes in the character, and checks if it can be seen as a
 				  falls outside accepted values
 *******************************************************************************/
 
-<<<<<<< HEAD
 /* FPL token */
-=======
-// FPL token
->>>>>>> origin/master
 Token aa_func08(char lexeme[]){
   
 	Token t;
@@ -814,24 +637,16 @@ Token aa_func08(char lexeme[]){
 	floatValue = atof(lexeme);
 
 	/*  if it's not in range */
-<<<<<<< HEAD
 	if ((floatValue < FLT_MIN && floatValue > 0.0) || floatValue > FLT_MAX ) 
 	{
 		/* Set error */
-=======
-	if (((float)floatValue < FLT_MIN && (float)floatValue > 0.0) || (float)floatValue > FLT_MAX ) // should add <. Somehow floatValue < FLT_MIN is not working
-	{
->>>>>>> origin/master
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
 		t.attribute.err_lex[ERR_LEN] = '\0';
 	}
 	else
 	{
-<<<<<<< HEAD
 		/* Otherwise, it's FPL */
-=======
->>>>>>> origin/master
 		t.code = FPL_T;
 		t.attribute.flt_value = (float)floatValue;
 	}
@@ -841,11 +656,7 @@ Token aa_func08(char lexeme[]){
 
 /******************************************************************************
 Purpose:		  Allows for IL token handling
-<<<<<<< HEAD
 Author:			  Nick Horlings
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: atoi()
 				  strncpy()
@@ -862,14 +673,9 @@ Token aa_func05(char lexeme[]){
 
 	Token t;
 	int intValue = 0;
-<<<<<<< HEAD
 	/* Get int value */
 	intValue = atoi(lexeme);
 	/* If it's out of range, set error token */
-=======
-
-	intValue = atoi(lexeme);
->>>>>>> origin/master
 	if (intValue > SHRT_MAX || intValue < SHRT_MIN){
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
@@ -884,11 +690,7 @@ Token aa_func05(char lexeme[]){
 
 /******************************************************************************
 Purpose:		  Allows for OIL token handling
-<<<<<<< HEAD
 Author:			  Oleg Matviyishyn
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: atool()
 				  strncpy()
@@ -900,11 +702,7 @@ Algorithm:		  Takes in the character, and checks if it can be seen as a
 				  of error tokens if the literal falls outside 
 				  accepted values
 *******************************************************************************/
-<<<<<<< HEAD
 /* OIL */
-=======
-// OIL
->>>>>>> origin/master
 Token aa_func10(char lexeme[]){
 	
 	Token t;
@@ -913,11 +711,7 @@ Token aa_func10(char lexeme[]){
 	val = atool(lexeme);
 
 	/* if error found or out of range, return error token */
-<<<<<<< HEAD
 	if (val > SHRT_MAX || val < SHRT_MIN)
-=======
-	if (val > SHRT_MAX || val < 0)
->>>>>>> origin/master
 	{
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
@@ -934,11 +728,7 @@ Token aa_func10(char lexeme[]){
 
 /******************************************************************************
 Purpose:		  Allows for ERR token handling
-<<<<<<< HEAD
 Author:			  Nick Horlings
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: strlen()
 				  strcpy()
@@ -952,17 +742,11 @@ Algorithm:		  Takes in the character, and checks if it falls inside
 Token aa_func12(char lexeme[]){
 
 	Token t;
-<<<<<<< HEAD
 	/* Get the length of a lexeme */
 	int lengthLex = strlen(lexeme);
 	t.code = ERR_T;
 
 	/* If it's less than 17, copy it as is*/
-=======
-	int lengthLex = strlen(lexeme);
-	t.code = ERR_T;
-
->>>>>>> origin/master
 	if (lengthLex < (ERR_LEN - 3))
 	{
 		strcpy(t.attribute.err_lex, lexeme);
@@ -970,10 +754,7 @@ Token aa_func12(char lexeme[]){
 	}
 	else
 	{
-<<<<<<< HEAD
 		/* Otherwise, copy only 20 chars, and replase last 3*/
-=======
->>>>>>> origin/master
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
 		t.attribute.err_lex[ERR_LEN - 3] = '.';
 		t.attribute.err_lex[ERR_LEN - 2] = '.';
@@ -986,11 +767,7 @@ Token aa_func12(char lexeme[]){
 
 /******************************************************************************
 Purpose:		  Allows for transformation of characters to literals
-<<<<<<< HEAD
 Author:			  Oleg Matviyishyn
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: strtol()
 Parameters:		  char			   - string to use
@@ -1001,20 +778,13 @@ Algorithm:		  Takes in the character, and transforms it into it's literal
 long atool(char * lexeme){
 	long val = 0;
 	char *ptr = NULL;
-<<<<<<< HEAD
 	/* Using strtol function to transform lexeme to octal value*/
-=======
->>>>>>> origin/master
 	val = strtol(lexeme, &ptr, 8);
 	return val;
 }
 /******************************************************************************
 Purpose:		  Compares the taken string to keyword values
-<<<<<<< HEAD
 Author:			  Nick Horlings
-=======
-Author:			  Oleg Matviyishyn and Nick Horlings
->>>>>>> origin/master
 History/Versions: 1.0
 Called functions: strcmp()
 Parameters:		  char			   - string to use
