@@ -159,23 +159,23 @@ if (argc == 5){
   }
 
 /*open source file */
-/*	if ((fi = fopen(argv[1],"r")) == NULL){
+	if ((fi = fopen(argv[1],"r")) == NULL){
 		err_printf("%s%s%s%s",argv[0],": ", "Cannot open file: ",argv[1]);
 		exit (1);
-	}*/
+	}
 /* load source file into input buffer  */
-     /*printf("Reading file %s ....Please wait\n",argv[1]);
+     printf("Reading file %s ....Please wait\n",argv[1]);
      loadsize = b_load (fi,sc_buf);
      if(loadsize == R_FAIL_1)
        err_printf("%s%s%s",argv[0],": ","Error in loading buffer.");
-	   */
+
 /* close source file */	
- 	//fclose(fi);
+ 	fclose(fi);
 /*find the size of the file  */
-    /*if (loadsize == LOAD_FAIL){
+    if (loadsize == LOAD_FAIL){
      printf("The input file %s %s\n", argv[1],"is not completely loaded.");
      printf("Input file size: %ld\n", get_filesize(argv[1]));
-    }*/
+    }
 /* pack and display the source buffer */
 
        if(b_pack(sc_buf)){
@@ -188,4 +188,87 @@ if (argc == 5){
 	 err_printf("%s%s%s",argv[0],": ","Could not create string buffer");
 	 exit(EXIT_FAILURE);
 	}
+
+/*registrer exit function */	
+ atexit(garbage_collect);
+	
+/*Testbed for the scanner and the symbol table*/
+/* add SEOF to input program buffer*/
+	b_addc(sc_buf,'\0');
+
+/* Initialize the scanner*/ 
+	if(scanner_init(sc_buf)){;
+	  err_printf("%s%s%s",argv[0],": ","Empty program buffer - scanning canceled");
+	  exit(1); 
+	}
+        
+        printf("Scanning source file...\n\n");
+
+	do{
+	  t= mlwpar_next_token(sc_buf);
+	}while(t.code != SEOF_T);
+/* print Symbol Table */      
+       if(sym_table.st_size){
+         st_print(sym_table);
+         if(sort_st){
+           printf("\nSorting symbol table...\n");
+           st_sort(sym_table,sort_st);
+           st_print(sym_table);
+         }
+       }
+/*Test bed for type and update functions */
+
+/*Test bed for bonus*/
+	return (0); /* same effect as exit(EXIT_SUCCESS) */
+} 
+
+/* Error printing function with variable number of arguments
+ */
+void err_printf( char *fmt, ... ){
+
+  va_list ap;
+  va_start(ap, fmt);
+
+  (void)vfprintf(stderr, fmt, ap);
+	va_end(ap);
+
+  /* Move to new line */
+  if( strchr(fmt,'\n') == NULL )
+	  fprintf(stderr,"\n");
+}
+
+/* The function return the size of an open file 
+ */
+long get_filesize(char  *fname){
+   FILE *input;
+   long flength;
+   input = fopen(fname, "r");
+   if(input == NULL)
+      err_printf("%s%s","Cannot open file: ",fname);   
+   fseek(input, 0L, SEEK_END);
+   flength = ftell(input);   
+   fclose(input);
+   return flength;
+}
+
+/* The function display buffer contents 
+ */
+void display (Buffer *ptrBuffer){
+  printf("\nPrinting input buffer parameters:\n\n");
+  printf("The capacity of the buffer is:  %d\n",b_capacity(ptrBuffer));
+  printf("The current size of the buffer is:  %d\n",b_size(ptrBuffer));
+  printf("The reallocation flag is:   %d\n",b_rflag(ptrBuffer));
+  printf("\nPrinting input buffer contents:\n\n");
+  b_print(ptrBuffer);
+}
+
+/* The function frees all dynamically allocated memory. 
+   This function is always called
+   despite how the program terminates - normally or abnormally. 
+*/
+void garbage_collect(void){
+  printf("\nCollecting garbage...\n");
+	b_destroy(sc_buf);
+	b_destroy(str_LTBL);  
+	st_destroy(sym_table);
 }

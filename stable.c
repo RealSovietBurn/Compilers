@@ -5,10 +5,13 @@
 #include "stable.h"
 
 /* global sym_table, from platy_tt.c */
-extern STD sym_table;
+//extern STD sym_table;
 /* global b_destroy to clear the buffer*/
-extern void b_destroy(Buffer * const);
+// This is a pointer to sym_table from platy_tt.c. Used to avoid using extern variable in scanner.c
+STD * pStd;
 
+
+extern void b_destroy(Buffer * const);
 
 STD st_create(int st_size) {
 	STD std;
@@ -19,11 +22,10 @@ STD st_create(int st_size) {
 	if (std.pstvr == NULL) std.st_size = 0;
 	else 
 		std.st_size = st_size;
-	
+	pStd = &std; // Now we have a pointer to the symbol table
 	return std;
 }
 
-/*
 // This function must be tested. There may be tons of errors.
 int st_install(STD sym_table, char *lexeme, char type, int line){
 
@@ -31,28 +33,28 @@ int st_install(STD sym_table, char *lexeme, char type, int line){
     int lexemeOffset; // return offset for STVR
     STVR stvr; //  STVR to install
 
-    /* if symbol table invalid, return -1 
+    /* if symbol table invalid, return -1 */
     if (sym_table.st_size == 0)
 	{
         return -1;
 	}
-	/* check for existing symbol 
+	/* check for existing symbol */
     lexemeOffset = st_lookup(sym_table, lexeme);
 
-    /* if symbol found, return it offset 
+    /* if symbol found, return it offset */
     if (lexemeOffset != -1)
 	{
         return lexemeOffset;
 	}
 
-	/* set offset to next one 
+	/* set offset to next one */
     lexemeOffset = sym_table.st_offset;
 
-	/* set plex, to the plsBD 
+	/* set plex, to the plsBD */
     stvr.plex = b_setmark(sym_table.plsBD, b_size(sym_table.plsBD));
     stvr.o_line = line;
 
-	/* add lexeme to buffer 
+	/* add lexeme to buffer */
     for (i = 0; i <= strlen(lexeme); i++)
 	{
         if (!b_addc(sym_table.plsBD, lexeme[i]))
@@ -61,37 +63,37 @@ int st_install(STD sym_table, char *lexeme, char type, int line){
 		}
     }
 
-    /* set field to default default value 
+    /* set field to default default value */
     stvr.status_field = BIT_MASK_DEFAULT;
 
 	switch (type) {
 	case 'S': 
-		/* set i_value 
+		/* set i_value */
         stvr.i_value.str_offset = -1;
-		/* set as string 
+		/* set as string */
         stvr.status_field |= BIT_MASK_STRING;
-		/* set update flag 
+		/* set update flag */
         stvr.status_field &= BIT_MASK_RESET_UPDATE_FLAG;
         stvr.status_field |= BIT_MASK_SET_UPDATE_FLAG;
 		break;
 	case 'I':
-	/* Set i_value 
+		/* Set i_value */
         stvr.i_value.int_val = 0;
-        /* Set as integer 
+        /* Set as integer */
         stvr.status_field |= BIT_MASK_INTEGER;
 		break;
 	case 'F':
-			/* Set i_value 
+			/* Set i_value */
         stvr.i_value.fpl_val = 0.0f;
-        /* Set as floating-point 
+        /* Set as floating-point */
         stvr.status_field |= BIT_MASK_FLOAT;  
 		break;
 	}
 
-	/* install STVR in array 
+	/* install STVR in array */
     sym_table.pstvr[sym_table.st_offset] = stvr;
 
-	/* increment by 1 
+	/* increment by 1 */
     st_incoffset();
 
     return lexemeOffset;
@@ -109,7 +111,7 @@ int st_update_type(STD sym_table,int vid_offset,char v_type){
         sym_table.pstvr[vid_offset].status_field |= BIT_MASK_INTEGER;
 		break;
 	case 'F':
-        /* Set as floating-point 
+        /* Set as floating-point */
         sym_table.pstvr[vid_offset].status_field |= BIT_MASK_FLOAT;  
 		break;
 	}
@@ -129,11 +131,11 @@ int st_lookup(STD sym_table, char *lexeme) {
 }
 
 static void st_incoffset(void){
-	sym_table.st_offset++;
+	(*getStd()).st_offset++;
 }
 
 static void st_setsize(void){
-	sym_table.st_size = 0;
+	(*getStd()).st_size = 0;
 }
 
 int st_sort(STD sym_table, char s_order){
@@ -143,7 +145,6 @@ int st_sort(STD sym_table, char s_order){
 // Think about this. It must return -1 on  failure. BUT WHAT IS A FAILURE HERE? Except STVR array can be null (I doubt that)
 int st_update_value(STD sym_table, int vid_offset, InitialValue i_value){	if (sym_table.pstvr == NULL) return -1; 	i_value = sym_table.pstvr[vid_offset].i_value;	return vid_offset;}
 char st_get_type (STD sym_table, int vid_offset){
-
 	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_FLOAT) == BIT_MASK_FLOAT){
 		return 'F';
 	}
@@ -157,7 +158,7 @@ char st_get_type (STD sym_table, int vid_offset){
 	}
 }
 
-/*May have errors
+/*May have errors*/
 void st_destroy(STD sym_table) {
 	int i = 0;
 	b_destroy(sym_table.plsBD);
@@ -188,4 +189,8 @@ int st_store(STD sym_table){
 	for ( i = 0; i < sym_table.st_offset; i++){
 		fprintf(f, " %04x %d %s %d %c", sym_table.pstvr[i].status_field, strlen(sym_table.pstvr[i].plex), sym_table.pstvr[i].plex, sym_table.pstvr[i].o_line, st_get_type(sym_table, i+1) );
 	}
-}*/
+}
+
+ STD* getStd(void){
+	return pStd;
+}

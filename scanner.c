@@ -45,6 +45,8 @@ Function list: scanner_init()			   mlwpar_next_token()			   get_next_token()	
 #include "buffer.h"
 #include "token.h"
 #include "table.h"
+#include "stable.h"
+#include "stable.h"
 
 #define DEBUG  /* for conditional processing */
 #undef  DEBUG
@@ -55,11 +57,9 @@ Function list: scanner_init()			   mlwpar_next_token()			   get_next_token()	
 extern Buffer * str_LTBL; /*String literal table */
 int line; /* current line number of the source code */
 extern int scerrnum;     /* defined in platy_st.c - run-time error number */
-
 /* Local(file) global objects - variables */
 static Buffer *lex_buf;/*pointer to temporary lexeme buffer*/
 
-/* No other global variable declarations/definitiond are allowed */
 
 /* scanner.c static(local) function  prototypes */ 
 static int char_class(char c); /* character class function */
@@ -563,7 +563,7 @@ Token aa_func02(char lexeme[]){
 	Token t;
 	/* Get keyword index*/
 	int keyword = iskeyword(lexeme);
-
+	char * tmpLexeme = (char *)malloc(20*sizeof(char));
 	/* If index found */
 	if (keyword >= 0) {
 		t.code = KW_T;
@@ -572,13 +572,23 @@ Token aa_func02(char lexeme[]){
 	} else { /* Set AVID */
 		if (strlen(lexeme) > VID_LEN){
 			/* If variable is too large - copy only 20 characters */
-			strncpy(t.attribute.vid_lex, lexeme, VID_LEN);
-			t.attribute.vid_lex[VID_LEN] = '\0';
+			strncpy(tmpLexeme, lexeme, VID_LEN);
+			tmpLexeme[VID_LEN] = '\0';
+			t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'I', line);
 		} else {
 			/* If variable length is fine - copy it as is*/
-			strcpy(t.attribute.vid_lex, lexeme);
-			t.attribute.vid_lex[strlen(lexeme)] = '\0';
+			strcpy(tmpLexeme, lexeme);
+			tmpLexeme[VID_LEN] = '\0';
+			t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'I', line);;
 		}
+		free(tmpLexeme);
+		if (t.attribute.vid_offset == -1)
+		{
+        printf("\nError: The Symbol Table is full - install failed.\n");
+        st_store(*getStd());
+        exit(EXIT_FAILURE);
+		}
+		
 		t.code = AVID_T;
 		return t;
 	}
@@ -599,17 +609,27 @@ Algorithm:		  Takes in the character, and checks if it is a variable
 /* Accept SVID token */
 Token aa_func03(char lexeme[]){
 	Token t;
+	char * tmpLexeme = (char *)malloc(20*sizeof(char));
 	if (strlen(lexeme) > VID_LEN) {
 		/* If variable length is too large - copy 19 charactes, character #20 is %*/
-		strncpy(t.attribute.vid_lex, lexeme, VID_LEN-1);
-		t.attribute.vid_lex[VID_LEN-1] = '%';
-		t.attribute.vid_lex[VID_LEN] = '\0';
+		strncpy(tmpLexeme, lexeme, VID_LEN-1);
+		tmpLexeme[VID_LEN-1] = '%';
+		tmpLexeme[VID_LEN] = '\0';
+		t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'S', line);
 	} else {
 		/* If variable length is fine - copy it as is and add % in the end */
-		strcpy(t.attribute.vid_lex, lexeme);
-		t.attribute.vid_lex[strlen(lexeme)] = '%';
-		t.attribute.vid_lex[strlen(lexeme)]= '\0';
+		strcpy(tmpLexeme, lexeme);
+		tmpLexeme[VID_LEN-1] = '%';
+		tmpLexeme[VID_LEN] = '\0';
+		t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'S', line);
 	}
+	free (tmpLexeme);
+	if (t.attribute.vid_offset == -1)
+		{
+        printf("\nError: The Symbol Table is full - install failed.\n");
+        st_store(*getStd());
+        exit(EXIT_FAILURE);
+		}
 	t.code = SVID_T;
   return t;
 }
@@ -633,6 +653,7 @@ Token aa_func08(char lexeme[]){
   
 	Token t;
 	double floatValue = 0; // Using double to avoid possible float over or underflows
+	char * tmpLexeme = (char *) malloc (20 * sizeof(char));
 
 	floatValue = atof(lexeme);
 
@@ -647,6 +668,9 @@ Token aa_func08(char lexeme[]){
 	else
 	{
 		/* Otherwise, it's FPL */
+		strcpy(tmpLexeme, lexeme);
+		tmpLexeme[VID_LEN] = '\0';
+		t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'F', line);;
 		t.code = FPL_T;
 		t.attribute.flt_value = (float)floatValue;
 	}
