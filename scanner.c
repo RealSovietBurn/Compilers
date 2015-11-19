@@ -133,12 +133,11 @@ which is being processed by the scanner.
    if (c == '\n') {line++; continue;}
    else if (c == ' ') continue;
    /*If SEOF*/
-   else if (c == 255) { 
+   else if (c == 255 || c == '\0') { 
 	   t.code = SEOF_T;
 	   return t;
    }
    else if (c == '\t') continue;
-   else if (c == '\0') continue;
    else if (c == '	') continue;
    else if (c == '{'){ 
 	       t.code = LBR_T; 
@@ -309,6 +308,7 @@ which is being processed by the scanner.
 		   {
 			   c = b_getc(sc_buf);
 		   }
+		   line++;
 	   } 
 	   else {
 		   t.code = ERR_T;
@@ -323,6 +323,7 @@ which is being processed by the scanner.
 		   {
 			   c = b_getc(sc_buf); /* And process everything again */
 		   }
+		   line++;
 		   return t;
 	   }
    }
@@ -338,13 +339,13 @@ which is being processed by the scanner.
 			while(c != '"')
 			{
 				/* If \n, increase line counter */
-				if(c== '\n' || c == 255)
+				if(c== '\n')
 				{
 					line++;
 				}
 
 				/* If '\0', return an error token */
-				if(c == '\0')
+				if(c == '\0' || c == 255)
 				{
 					lexend = (b_getc_offset(sc_buf));
 					t.code = ERR_T;	
@@ -696,11 +697,11 @@ Algorithm:		  Takes in the character, and checks if it can be seen as a
 Token aa_func05(char lexeme[]){
 
 	Token t;
-	int intValue = 0;
+	long intValue = 0;
 	/* Get int value */
-	intValue = atoi(lexeme);
+	intValue = atol(lexeme);
 	/* If it's out of range, set error token */
-	if (intValue > SHRT_MAX || intValue < SHRT_MIN){
+	if (intValue > SHRT_MAX){
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
 		t.attribute.err_lex[ERR_LEN] = '\0';
@@ -730,12 +731,12 @@ Algorithm:		  Takes in the character, and checks if it can be seen as a
 Token aa_func10(char lexeme[]){
 	
 	Token t;
-	int val = 0;
+	long val = 0;
 	
 	val = atool(lexeme);
 
 	/* if error found or out of range, return error token */
-	if (val > SHRT_MAX || val < SHRT_MIN)
+	if (val > SHRT_MAX)
 	{
 		t.code = ERR_T;
 		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
@@ -769,22 +770,8 @@ Token aa_func12(char lexeme[]){
 	/* Get the length of a lexeme */
 	int lengthLex = strlen(lexeme);
 	t.code = ERR_T;
-
-	/* If it's less than 17, copy it as is*/
-	if (lengthLex < (ERR_LEN - 3))
-	{
-		strcpy(t.attribute.err_lex, lexeme);
-		t.attribute.err_lex[lengthLex] = '\0';
-	}
-	else
-	{
-		/* Otherwise, copy only 20 chars, and replase last 3*/
-		strncpy(t.attribute.err_lex, lexeme, ERR_LEN);
-		t.attribute.err_lex[ERR_LEN - 3] = '.';
-		t.attribute.err_lex[ERR_LEN - 2] = '.';
-		t.attribute.err_lex[ERR_LEN - 1] = '.';
-		t.attribute.err_lex[ERR_LEN] = '\0';
-	}
+	strcpy(t.attribute.err_lex, lexeme);
+	t.attribute.err_lex[lengthLex] = '\0';	
 	return t;
 }
 
