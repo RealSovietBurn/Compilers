@@ -20,7 +20,18 @@ Professor: Sv. Ranev
 Purpose: Takes in a file, and allows processing and handling of text character by character.
 		 It allows for error handling, and allows for assignment of tokens according to
 		 the status of literals, keywords, and identifiers found in the processed PLATYPUS file.
-Function list: scanner_init()			   mlwpar_next_token()			   get_next_token()			   char_class()			   aa_func02()			   aa_func05()			   aa_func08()			   aa_func10()			   aa_func12()			   atool()			   iskeyword()
+Function list: scanner_init()
+			   mlwpar_next_token()
+			   get_next_token()
+			   char_class()
+			   aa_func02()
+			   aa_func05()
+			   aa_func08()
+			   aa_func10()
+			   aa_func12()
+			   atool()
+			   iskeyword()
+
  *******************************************************************
  */
 
@@ -671,7 +682,7 @@ Token aa_func08(char lexeme[]){
 		/* Otherwise, it's FPL */
 		strcpy(tmpLexeme, lexeme);
 		tmpLexeme[VID_LEN] = '\0';
-		t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'F', line);;
+		
 		t.code = FPL_T;
 		t.attribute.flt_value = (float)floatValue;
 	}

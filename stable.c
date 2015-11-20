@@ -5,10 +5,10 @@
 #include "stable.h"
 
 /* global sym_table, from platy_tt.c */
-//extern STD sym_table;
+extern STD sym_table;
 /* global b_destroy to clear the buffer*/
 // This is a pointer to sym_table from platy_tt.c. Used to avoid using extern variable in scanner.c
-STD * pStd;
+STD * pStd = &sym_table;
 
 
 extern void b_destroy(Buffer * const);
@@ -22,15 +22,14 @@ STD st_create(int st_size) {
 	if (std.pstvr == NULL) std.st_size = 0;
 	else 
 		std.st_size = st_size;
-	pStd = &std; // Now we have a pointer to the symbol table
+	
 	return std;
 }
 
 // This function must be tested. There may be tons of errors.
 int st_install(STD sym_table, char *lexeme, char type, int line){
-
 	int i;  // used in for loop
-    int lexemeOffset; // return offset for STVR
+    int lexemeOffset = 0; // return offset for STVR
     STVR stvr; //  STVR to install
 
     /* if symbol table invalid, return -1 */
@@ -160,24 +159,26 @@ char st_get_type (STD sym_table, int vid_offset){
 
 /*May have errors*/
 void st_destroy(STD sym_table) {
-	int i = 0;
-	b_destroy(sym_table.plsBD);
-	free(sym_table.plsBD);
-	for (i = 0; i < sym_table.st_offset; i++) {
-		free(sym_table.pstvr[i].plex);
-	}
-	free(sym_table.pstvr);
+	//int i = 0;
+	//b_destroy(sym_table.plsBD);
+	//free(sym_table.plsBD);
+    //for (i = 0; i < sym_table.st_offset; i++) {
+	//	free(sym_table.pstvr[i].plex);
+//	}
+//	free(sym_table.pstvr);
 }
 
 // I'm pretty sure in these functions
 int st_print(STD sym_table){
 	int i = 0;
-	printf("Symbol Table\n");
-	printf("------------\n");
-	printf("Line Number\tVariable Identifier\n");
+	if (sym_table.pstvr == NULL) return -1;
+	printf("\nSymbol Table\n");
+	printf("____________\n");
+	printf("\nLine Number Variable Identifier\n");
 	for (i = 0; i < sym_table.st_offset; i++) {
-		printf("   %d  \t     %s",sym_table.pstvr[i].o_line, sym_table.pstvr[i].plex);
+		printf("%2d          %s\n",sym_table.pstvr[i].o_line, sym_table.pstvr[i].plex);
 	}
+	return i;
 }
 
 // Some bullshit here
