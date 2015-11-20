@@ -463,7 +463,6 @@ Buffer * b_pack (Buffer * const pBD) {
 	
 	if (tmp != NULL) {
 		pBD->cb_head = tmp;
-		pBD->r_flag = SET_R_FLAG;
 	}
 	else
 		return NULL;

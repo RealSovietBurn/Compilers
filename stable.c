@@ -49,6 +49,12 @@ int st_install(STD sym_table, char *lexeme, char type, int line){
 	/* set offset to next one */
     lexemeOffset = sym_table.st_offset;
 
+	 if (lexemeOffset >= sym_table.st_size)
+	{
+        return -1;
+	}
+
+
 	/* set plex, to the plsBD */
     stvr.plex = b_setmark(sym_table.plsBD, b_size(sym_table.plsBD));
     stvr.o_line = line;
@@ -68,7 +74,7 @@ int st_install(STD sym_table, char *lexeme, char type, int line){
 	switch (type) {
 	case 'S': 
 		/* set i_value */
-        stvr.i_value.str_offset = -1;
+		stvr.i_value.str_offset = -1;
 		/* set as string */
         stvr.status_field |= BIT_MASK_STRING;
 		/* set update flag */
@@ -103,7 +109,7 @@ int st_update_type(STD sym_table,int vid_offset,char v_type){
 	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_SET_UPDATE_FLAG) == 1) { // Status has already been updated
 		return -1;
 	} else {
-		if (v_type == 'S') return -1; // Just in case if user would like to update String;
+	if (v_type == 'S') return -1; // Just in case if user would like to update String;
 		sym_table.pstvr[vid_offset].status_field = BIT_MASK_DEFAULT;
 		switch (v_type) {
 	case 'I':
@@ -142,8 +148,18 @@ int st_sort(STD sym_table, char s_order){
 }
 
 // Think about this. It must return -1 on  failure. BUT WHAT IS A FAILURE HERE? Except STVR array can be null (I doubt that)
-int st_update_value(STD sym_table, int vid_offset, InitialValue i_value){	if (sym_table.pstvr == NULL) return -1; 	i_value = sym_table.pstvr[vid_offset].i_value;	return vid_offset;}
+int st_update_value(STD sym_table, int vid_offset, InitialValue i_value){
+	if (sym_table.pstvr == NULL) return -1; 
+	i_value = sym_table.pstvr[vid_offset].i_value;
+	return vid_offset;
+}
+
 char st_get_type (STD sym_table, int vid_offset){
+
+	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_STRING) == BIT_MASK_STRING){
+		return 'S';
+	}
+
 	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_FLOAT) == BIT_MASK_FLOAT){
 		return 'F';
 	}
@@ -152,20 +168,21 @@ char st_get_type (STD sym_table, int vid_offset){
 		return 'I';
 	}
 
-	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_STRING) == BIT_MASK_STRING){
-		return 'S';
-	}
+	
 }
 
 /*May have errors*/
 void st_destroy(STD sym_table) {
-	//int i = 0;
-	//b_destroy(sym_table.plsBD);
-	//free(sym_table.plsBD);
-    //for (i = 0; i < sym_table.st_offset; i++) {
-	//	free(sym_table.pstvr[i].plex);
-//	}
-//	free(sym_table.pstvr);
+	/* free buffer when needed */
+	if (sym_table.plsBD != NULL)
+	{
+        b_destroy(sym_table.plsBD);
+	}
+    if (sym_table.pstvr != NULL)
+	{
+        free(sym_table.pstvr);
+	}
+    st_setsize();
 }
 
 // I'm pretty sure in these functions
@@ -186,12 +203,38 @@ int st_store(STD sym_table){
 	int i = 0;
 	char * fileName = "$stable.ste";
 	FILE *f = fopen( fileName, "w");
-	fprintf(f, "%d ", sym_table.st_size);
-	for ( i = 0; i < sym_table.st_offset; i++){
-		fprintf(f, " %04x %d %s %d %c", sym_table.pstvr[i].status_field, strlen(sym_table.pstvr[i].plex), sym_table.pstvr[i].plex, sym_table.pstvr[i].o_line, st_get_type(sym_table, i+1) );
+	fprintf(f, "%d", sym_table.st_size);
+	for ( i = 0; i < sym_table.st_offset; ++i){
+
+		fprintf(f, " %04X %d %s %d ", sym_table.pstvr[i].status_field, strlen(sym_table.pstvr[i].plex), sym_table.pstvr[i].plex, sym_table.pstvr[i].o_line);
+		switch (st_get_type(sym_table, i))
+		{
+		case 'S':
+            fprintf(f, "%d", sym_table.pstvr[i].i_value.str_offset);
+            break;
+        case 'F':
+			fprintf(f, "%.2f", sym_table.pstvr[i].i_value.fpl_val);
+            break;
+        case 'I':
+            fprintf(f, "%d", sym_table.pstvr[i].i_value.int_val);
+            break;
+		}
 	}
+	fclose(f);
+	printf("\nSymbol Table stored.\n");
 }
 
+/******************************************************************************
+Purpose:		  this function is used to get sym_table from platy_tt in functions
+				  from scanner.c. It allows to avoid using sym_table as global variable
+				  in scanner.c
+Author:			  Oleg Matviyishyn
+History/Versions: 1.0
+Called functions: none
+Parameters:		  void
+Return value:	  pStd - pointer to symbol table.
+Algorithm:		  Returns pointer to symbol table
+*******************************************************************************/
  STD* getStd(void){
 	return pStd;
 }
