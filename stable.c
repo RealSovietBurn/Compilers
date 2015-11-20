@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,7 +11,6 @@ extern STD sym_table;
 /* global b_destroy to clear the buffer*/
 // This is a pointer to sym_table from platy_tt.c. Used to avoid using extern variable in scanner.c
 STD * pStd = &sym_table;
-
 
 extern void b_destroy(Buffer * const);
 
@@ -28,7 +29,7 @@ STD st_create(int st_size) {
 
 // This function must be tested. There may be tons of errors.
 int st_install(STD sym_table, char *lexeme, char type, int line){
-	int i;  // used in for loop
+    unsigned int i;  // used in for loop
     int lexemeOffset = 0; // return offset for STVR
     STVR stvr; //  STVR to install
 
@@ -156,6 +157,8 @@ int st_update_value(STD sym_table, int vid_offset, InitialValue i_value){
 
 char st_get_type (STD sym_table, int vid_offset){
 
+	if(sym_table.pstvr != NULL){
+
 	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_STRING) == BIT_MASK_STRING){
 		return 'S';
 	}
@@ -167,8 +170,10 @@ char st_get_type (STD sym_table, int vid_offset){
 	if ((sym_table.pstvr[vid_offset].status_field & BIT_MASK_INTEGER) == BIT_MASK_INTEGER){
 		return 'I';
 	}
-
 	
+	}
+	// If there is no array with stvrs
+	return R_FAIL_1;
 }
 
 /*May have errors*/
@@ -203,6 +208,11 @@ int st_store(STD sym_table){
 	int i = 0;
 	char * fileName = "$stable.ste";
 	FILE *f = fopen( fileName, "w");
+
+	if (sym_table.pstvr == NULL)
+		return R_FAIL_1;
+
+	if (f != NULL) {
 	fprintf(f, "%d", sym_table.st_size);
 	for ( i = 0; i < sym_table.st_offset; ++i){
 
@@ -222,6 +232,10 @@ int st_store(STD sym_table){
 	}
 	fclose(f);
 	printf("\nSymbol Table stored.\n");
+	return i;
+	}
+	// If file was not opened, return -1
+	return R_FAIL_1;
 }
 
 /******************************************************************************
