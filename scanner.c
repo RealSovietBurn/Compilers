@@ -576,6 +576,7 @@ Token aa_func02(char lexeme[]){
 	/* Get keyword index*/
 	int keyword = iskeyword(lexeme);
 	char * tmpLexeme = (char *)malloc(20*sizeof(char));
+	char c = lexeme[0]; // Get first character
 	/* If index found */
 	if (keyword >= 0) {
 		t.code = KW_T;
@@ -586,12 +587,20 @@ Token aa_func02(char lexeme[]){
 			/* If variable is too large - copy only 20 characters */
 			strncpy(tmpLexeme, lexeme, VID_LEN);
 			tmpLexeme[VID_LEN] = '\0';
-			t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'I', line);
+			if (c == 'i' || c == 'o' || c == 'd' || c == 'w') {
+				t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'I', line);
+			} else {
+				t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'F', line);
+			}
 		} else {
 			/* If variable length is fine - copy it as is*/
 			strcpy(tmpLexeme, lexeme);
 			tmpLexeme[VID_LEN] = '\0';
-			t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'I', line);;
+			if (c == 'i' || c == 'o' || c == 'd' || c == 'w') {
+				t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'I', line);
+			} else {
+				t.attribute.vid_offset = st_install(*getStd(), tmpLexeme, 'F', line);
+			}
 		}
 		free(tmpLexeme);
 		if (t.attribute.vid_offset == -1)
