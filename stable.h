@@ -1,8 +1,34 @@
+/*********************************************************************
+File name: stable.h
+Compiler: MS Visual Studio 2012
+Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, 040-764-529
+Course: CST 8152 – Compilers, Lab Section: 012
+Assignment: 3
+Date: November 20th, 2015
+Professor: Sv. Ranev
+Purpose: Contains declarations for stable.c
+Function list:  STD st_create(int);
+			    int st_install(STD, char *, char, int);
+			    int st_lookup(STD, char *);
+			    int st_update_type(STD, int, char);
+			    int st_update_value(STD, int, InitialValue);
+			    char st_get_type (STD, int);
+			    void st_destroy(STD);
+			    int st_print(STD);
+				int st_store(STD);
+				int st_sort(STD, char);
+				static void st_setsize(void);
+				static void st_incoffset(void);
+				static int st_ascending_cmp(const void *, const void *);
+				static int st_descending_cmp(const void *, const void *);
+				STD* getStd(void);
 
+ *******************************************************************
+ */
 
 #ifndef STABLE_H_
 #define STABLE_H_
-/* ------------------------ Bit Masks ------------------------- */
+
 /* zero */
 #define BIT_MASK_ZERO 0x0000			/*	0000 0000 0000 0000	*/
 /* default */
@@ -17,7 +43,6 @@
 #define BIT_MASK_FLOAT 0x0002		/*	0000 0000 0000 0010	*/
 /* string */
 #define BIT_MASK_STRING 0x0006		/*	0000 0000 0000 0110	*/
-/* ------------------------ Bit Masks ------------------------- */
 
 typedef union InitialValue {
  int int_val; /* integer variable initial value */
@@ -38,7 +63,6 @@ typedef struct SymbolTableDescriptor {
  Buffer *plsBD; /* pointer to the lexeme storage buffer descriptor */
 } STD;
 
-/* Function Prototypes */
 STD st_create(int);
 int st_install(STD, char *, char, int);
 int st_lookup(STD, char *);
@@ -51,5 +75,7 @@ int st_store(STD);
 int st_sort(STD, char);
 static void st_setsize(void);
 static void st_incoffset(void);
+static int st_ascending_cmp(const void *, const void *);
+static int st_descending_cmp(const void *, const void *);
  STD* getStd(void);
 #endif

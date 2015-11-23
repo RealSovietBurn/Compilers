@@ -317,6 +317,7 @@ which is being processed by the scanner.
 		   /* processing comment here */
 		   while (c != '\n')
 		   {
+			   if (c == 255) break; /*Somehow, it's not working, if it's put in while*/
 			   c = b_getc(sc_buf);
 		   }
 		   line++;
@@ -581,6 +582,7 @@ Token aa_func02(char lexeme[]){
 	if (keyword >= 0) {
 		t.code = KW_T;
 		t.attribute.kwt_idx = keyword;
+		free(tmpLexeme);
 		return t;
 	} else { /* Set AVID */
 		if (strlen(lexeme) > VID_LEN){
@@ -607,6 +609,7 @@ Token aa_func02(char lexeme[]){
 		{
         printf("\nError: The Symbol Table is full - install failed.\n");
         st_store(*getStd());
+		b_destroy(lex_buf);
         exit(EXIT_FAILURE);
 		}
 		
@@ -649,6 +652,7 @@ Token aa_func03(char lexeme[]){
 		{
         printf("\nError: The Symbol Table is full - install failed.\n");
         st_store(*getStd());
+		b_destroy(lex_buf);
         exit(EXIT_FAILURE);
 		}
 	t.code = SVID_T;
@@ -695,7 +699,7 @@ Token aa_func08(char lexeme[]){
 		t.code = FPL_T;
 		t.attribute.flt_value = (float)floatValue;
 	}
-	
+	free (tmpLexeme);	
 	return t;
 }
 

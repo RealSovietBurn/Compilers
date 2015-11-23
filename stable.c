@@ -1,3 +1,34 @@
+/*********************************************************************
+File name: stable.c
+Compiler: MS Visual Studio 2012
+Author: Nick Horlings, 040-781-692; Oleg Matviyishyn, 040-764-529
+Course: CST 8152 – Compilers, Lab Section: 012
+Assignment: 3
+Date: November 20th, 2015
+Professor: Sv. Ranev
+Purpose: Provides functionality to install elements into symbol table,
+		update them, print them and sort them.
+Function list:  STD st_create(int);
+			    int st_install(STD, char *, char, int);
+			    int st_lookup(STD, char *);
+			    int st_update_type(STD, int, char);
+			    int st_update_value(STD, int, InitialValue);
+			    char st_get_type (STD, int);
+			    void st_destroy(STD);
+			    int st_print(STD);
+				int st_store(STD);
+				int st_sort(STD, char);
+				static void st_setsize(void);
+				static void st_incoffset(void);
+				static int st_ascending_cmp(const void *, const void *);
+				static int st_descending_cmp(const void *, const void *);
+				STD* getStd(void);
+
+ *******************************************************************
+ */
+
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,12 +37,9 @@
 
 /* global sym_table, from platy_tt.c */
 extern STD sym_table;
-/* global b_destroy to clear the buffer*/
-// This is a pointer to sym_table from platy_tt.c. Used to avoid using extern variable in scanner.c
+
+/* This is a pointer to sym_table from platy_tt.c. Used to avoid using extern variable in scanner.c*/
 STD * pStd = &sym_table;
-
-
-extern void b_destroy(Buffer * const);
 
 /******************************************************************************
 Purpose:		  This function creates a new (empty) symbol table.
@@ -26,7 +54,7 @@ Algorithm:		  Initializes memory for a new symbol table that can handle the
 STD st_create(int st_size) {
 	STD std;
 	std.pstvr = (STVR *) malloc(sizeof(STVR)*st_size);
-	std.plsBD =  b_create(200, 15, 'a');
+	std.plsBD =  b_create(INIT, INIT_INC, 'a');
 	std.st_offset = 0;
 	if(std.pstvr == NULL) std.st_size = 0;
 	else std.st_size = st_size;
@@ -46,38 +74,30 @@ Algorithm:		  Uses the st_lookup() to scan if an entry is at the passed point
 				  the corresponding values for a new entry
 *******************************************************************************/
 int st_install(STD sym_table, char *lexeme, char type, int line){
-	int i;  // used in for loop
-	int lexemeOffset = 0; // return offset for STVR
-	STVR stvr; //  STVR to install
-
-	/* if symbol table invalid, return -1 */
-	if (sym_table.st_size == 0)
+	unsigned int i;  /* used in for loop */
+	int lexemeOffset = 0; /* return offset for STVR */
+	STVR stvr; /*  STVR to install */
+	/* If symbol table is not created, return -1 */
+	if (sym_table.pstvr == NULL)
 	{
-		return -1;
+		return R_FAIL_1;
 	}
-	/* check for existing symbol */
 	lexemeOffset = st_lookup(sym_table, lexeme);
-
-	/* if symbol found, return it offset */
+	/* If lexeme found */
 	if (lexemeOffset != -1)
 	{
 		return lexemeOffset;
 	}
-
-	/* set offset to next one */
 	lexemeOffset = sym_table.st_offset;
-
 	if (lexemeOffset >= sym_table.st_size)
 	{
 		return -1;
 	}
-
-
-	/* set plex, to the plsBD */
+	/*Get the position of lexeme in the buffer*/
 	stvr.plex = b_setmark(sym_table.plsBD, b_size(sym_table.plsBD));
 	stvr.o_line = line;
 
-	/* add lexeme to buffer */
+	/*Add plex to buffer*/
 	for (i = 0; i <= strlen(lexeme); i++)
 	{
 		if (!b_addc(sym_table.plsBD, lexeme[i]))
@@ -91,24 +111,20 @@ int st_install(STD sym_table, char *lexeme, char type, int line){
 
 	switch (type) {
 	case 'S': 
-		/* set i_value */
+		/* Set string */
 		stvr.i_value.str_offset = -1;
-		/* set as string */
 		stvr.status_field |= BIT_MASK_STRING;
-		/* set update flag */
 		stvr.status_field &= BIT_MASK_RESET_UPDATE_FLAG;
 		stvr.status_field |= BIT_MASK_SET_UPDATE_FLAG;
 		break;
 	case 'I':
-		/* Set i_value */
+		/* Set integer */
 		stvr.i_value.int_val = 0;
-		/* Set as integer */
 		stvr.status_field |= BIT_MASK_INTEGER;
 		break;
 	case 'F':
-		/* Set i_value */
+		/* Set float */
 		stvr.i_value.fpl_val = 0.0f;
-		/* Set as floating-point */
 		stvr.status_field |= BIT_MASK_FLOAT;  
 		break;
 	}
@@ -138,7 +154,10 @@ Return value:	  int - the vid_offset or -1 for failure
 Algorithm:		  Grabs the symbol table and increases it's offset
 *******************************************************************************/
 int st_update_type(STD sym_table,int vid_offset,char v_type){
-	if((sym_table.pstvr[vid_offset].status_field & BIT_MASK_SET_UPDATE_FLAG) == 1) return -1;
+
+	if (sym_table.pstvr == NULL) return R_FAIL_1;
+
+	if((sym_table.pstvr[vid_offset].status_field & BIT_MASK_SET_UPDATE_FLAG) == 1) return R_FAIL_1;
 	else{
 		if(v_type=='S') return -1; // Just in case if user would like to update String;
 		sym_table.pstvr[vid_offset].status_field = BIT_MASK_DEFAULT;
@@ -174,12 +193,12 @@ Algorithm:		  Iterates through the symbol table to search for an individual
 *******************************************************************************/
 int st_lookup(STD sym_table, char *lexeme) {
 	int iterator = sym_table.st_offset;
-	for (iterator; iterator > 0; iterator--){ // Iterator - 1, as offset maybe 1 (first element), but it's actual index is 0
+	for (iterator; iterator > 0; iterator--){ /* Iterator - 1, as offset maybe 1 (first element), but it's actual index is 0 */
 		if (strcmp(sym_table.pstvr[iterator - 1].plex, lexeme) == 0){
 			return iterator;
 		}
 	}
-	return -1; // Not found
+	return R_FAIL_1; /* Not found */
 }
 
 /******************************************************************************
@@ -221,10 +240,10 @@ Return value:	  int - compared value
 Algorithm:		  Grabs the first value of each passed string and compares them
 				  in ascending order
 *******************************************************************************/
-int st_ascending_cmp(const void *a, const void *b) {
-     char const *aa = (char const  *)a;
-     char const *bb = (char const  *)b;
-     return strcmp(aa, bb);
+static int st_ascending_cmp(const void *a, const void *b) {
+     char const *aa = ((STVR *) a)->plex;
+     char const *bb = ((STVR *) b)->plex;
+     return  strcmp(aa,bb);
 }
 
 /******************************************************************************
@@ -239,14 +258,14 @@ Return value:	  int - compared value
 Algorithm:		  Grabs the first value of each passed string and compares them
 				  in descending order
 *******************************************************************************/
-int st_descending_cmp(const void *a, const void *b) {
-     char const *aa = (char const  *)a;
-     char const *bb = (char const  *)b;
-     return -strcmp(aa, bb);
+static int st_descending_cmp(const void *a, const void *b) {
+     char const *aa = ((STVR *) a)->plex;
+     char const *bb = ((STVR *) b)->plex;
+     return  -strcmp(aa,bb);
 }
 
 /******************************************************************************
-Purpose:		  This function is not implemented, it does not sort the array.
+Purpose:		  Sorting the array in ascending or descending order
 Author:			  Oleg Matviyishyn
 History/Versions: 1.0
 Called functions: none
@@ -255,18 +274,18 @@ Parameters:		  STD - symbol table to be passed
 Return value:	  int - vid_offset or failure status
 Algorithm:		  returns zero, does not sort
 *******************************************************************************/
-int st_sort(STD sym_table, char s_order){
+int st_sort(STD sym_table, char s_order) {
 	if(s_order == 'D'){
 		if(sym_table.pstvr == NULL) return -1;
 		qsort(sym_table.pstvr,sym_table.st_offset,sizeof(sym_table.pstvr[0]),st_descending_cmp);
-		return 1;
+		return SUCCESS;
 	}
 	else if (s_order == 'A'){
 		if(sym_table.pstvr == NULL) return -1;
 		qsort(sym_table.pstvr,sym_table.st_offset,sizeof(sym_table.pstvr[0]),st_ascending_cmp);
-		return 1;
+		return SUCCESS;
 	}
-	return -1;
+	return R_FAIL_1;
 }
 
 /******************************************************************************
@@ -284,7 +303,7 @@ Algorithm:		  Updates the symbol table's value to the value passed as an
                   argument.
 *******************************************************************************/
 int st_update_value(STD sym_table, int vid_offset, InitialValue i_value){
-	if (sym_table.pstvr == NULL) return -1; 
+	if (sym_table.pstvr == NULL) return R_FAIL_1; 
 	i_value = sym_table.pstvr[vid_offset].i_value;
 	return vid_offset;
 }
@@ -304,10 +323,12 @@ Algorithm:		  Compares the type of variable specified by vid_offset passed
                   and returns the according value
 *******************************************************************************/
 char st_get_type (STD sym_table, int vid_offset){
+	if(sym_table.pstvr == NULL) return R_FAIL_1;
+	
 	if((sym_table.pstvr[vid_offset].status_field & BIT_MASK_STRING) == BIT_MASK_STRING) return 'S';
 	if((sym_table.pstvr[vid_offset].status_field & BIT_MASK_FLOAT) == BIT_MASK_FLOAT) return 'F';
 	if((sym_table.pstvr[vid_offset].status_field & BIT_MASK_INTEGER) == BIT_MASK_INTEGER) return 'I';
-	return -1;
+	return R_FAIL_1;
 }
 
 /******************************************************************************
@@ -321,7 +342,7 @@ Return value:	  none
 Algorithm:		  Frees all memory of the symbol table and sets it's size to 0
 *******************************************************************************/
 void st_destroy(STD sym_table) {
-	/* free buffer when needed */
+	
 	if (sym_table.plsBD != NULL)
 	{
 		b_destroy(sym_table.plsBD);
@@ -343,7 +364,7 @@ Return value:	  int - number of entries printed or failure (-1)
 Algorithm:		  Iterates through all symbols and prints them to the screen
 *******************************************************************************/
 int st_print(STD sym_table){
-	int i = 0;
+	int i = 0; /* Loop iterator*/
 	if (sym_table.pstvr == NULL) return -1;
 	printf("\nSymbol Table\n");
 	printf("____________\n");
@@ -376,7 +397,7 @@ Algorithm:		  Iterates through each symbol table entry and writes the
 hex equivalency of the data to the symbol table file.
 *******************************************************************************/
 int st_store(STD sym_table){
-	int i = 0;
+	int i = 0; /*Loop iterator*/
 	char * fileName = "$stable.ste";
 	FILE *f = fopen(fileName, "w");
 	if(!f) return -1;
