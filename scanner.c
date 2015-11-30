@@ -838,3 +838,8 @@ int iskeyword(char * kw_lexeme){
 	return R_FAIL_1;
 
 }
+
+int getLine(){
+	return line;
+}
+

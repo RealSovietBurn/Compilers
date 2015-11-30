@@ -63,6 +63,7 @@ typedef struct SymbolTableDescriptor {
  Buffer *plsBD; /* pointer to the lexeme storage buffer descriptor */
 } STD;
 
+Token mlwpar_next_token(Buffer * sc_buf);
 STD st_create(int);
 int st_install(STD, char *, char, int);
 int st_lookup(STD, char *);
@@ -77,5 +78,6 @@ static void st_setsize(void);
 static void st_incoffset(void);
 static int st_ascending_cmp(const void *, const void *);
 static int st_descending_cmp(const void *, const void *);
- STD* getStd(void);
+STD* getStd(void);
+int getLine();
 #endif
