@@ -5,8 +5,7 @@
 #include <stdlib.h>
 
 
-void parser(Buffer * in_buf)
-{
+void parser(Buffer * in_buf){
 	sc_buf = in_buf;
 	lookahead = mlwpar_next_token(sc_buf);
 	program(); match(SEOF_T, NO_ATTR);
@@ -14,8 +13,7 @@ void parser(Buffer * in_buf)
 }
 
 
-void match(int pr_token_code, int pr_token_attribute)
-{
+void match(int pr_token_code, int pr_token_attribute){
 	int m = 1;
 
 	switch (lookahead.code)
@@ -51,8 +49,7 @@ void match(int pr_token_code, int pr_token_attribute)
 }
 
 
-void syn_eh(int sync_token_code)
-{
+void syn_eh(int sync_token_code){
 	syn_printe();
 	synerrno++;
 
@@ -76,7 +73,6 @@ void syn_eh(int sync_token_code)
 
 void syn_printe(){
 	Token t = lookahead;
-
 	printf("PLATY: Syntax error:  Line:%3d\n", line);
 	printf("*****  Token code:%3d Attribute: ", t.code);
 	switch (t.code){
@@ -146,43 +142,31 @@ void syn_printe(){
 }/* end syn_printe()*/
 
 
-void gen_incode(char * string)
-{
+void gen_incode(char * string){
 	printf("%s\n", string);
 }
 
-void additive_arithmetic_expression(void)
-{
+void additive_arithmetic_expression(void){
 	multiplicative_arithmetic_expression();
-	additive_arithmetic_expression_p();
+	recurse_additive_arithmetic_expression();
 }
 
 
-void additive_arithmetic_expression_p(void)
-{
-	switch (lookahead.code)
-	{
-	case ART_OP_T:
-		switch (lookahead.attribute.arr_op)
-		{
-		case PLUS:
+void recurse_additive_arithmetic_expression(void){
+	if (lookahead.code == ART_OP_T){
+		if (lookahead.attribute.arr_op == PLUS){
 			match(ART_OP_T, PLUS);
-			multiplicative_arithmetic_expression();
-			additive_arithmetic_expression_p();
-			gen_incode("PLATY: Additive arithmetic expression parsed");
-			break;
-		case MINUS:
-			match(ART_OP_T, MINUS);
-			multiplicative_arithmetic_expression();
-			additive_arithmetic_expression_p();
-			gen_incode("PLATY: Additive arithmetic expression parsed");
-			break;
 		}
+		else if (lookahead.attribute.arr_op == MINUS){
+			match(ART_OP_T, MINUS);
+		}
+		multiplicative_arithmetic_expression();
+		recurse_additive_arithmetic_expression();
+		gen_incode("PLATY: Additive arithmetic expression parsed");
 	}
 }
 
-void arithmetic_expression(void)
-{
+void arithmetic_expression(void){
 	switch (lookahead.code)
 	{
 	case ART_OP_T:
@@ -202,8 +186,7 @@ void arithmetic_expression(void)
 }
 
 
-void assignment_expression(void)
-{
+void assignment_expression(void){
 	switch (lookahead.code)
 	{
 	case SVID_T:
@@ -224,31 +207,27 @@ void assignment_expression(void)
 }
 
 
-void assignment_statement(void)
-{
+void assignment_statement(void) {
 	assignment_expression();
 	match(EOS_T, NO_ATTR);
 	gen_incode("PLATY: Assignment statement parsed");
 }
 
 
-void conditional_expression(void)
-{
+void conditional_expression(void) {
 	logical_or_expression();
 	gen_incode("PLATY: Conditional expression parsed");
 }
 
 
-void input_statement(void)
-{
+void input_statement(void) {
 	match(KW_T, INPUT); match(LPR_T, NO_ATTR); variable_list();
 	match(RPR_T, NO_ATTR); match(EOS_T, NO_ATTR);
 	gen_incode("PLATY: INPUT statement parsed");
 }
 
 
-void iteration_statement(void)
-{
+void iteration_statement(void) {
 	match(KW_T, USING);
 	match(LPR_T, NO_ATTR);
 	assignment_expression();
@@ -266,33 +245,25 @@ void iteration_statement(void)
 }
 
 
-void logical_and_expression(void)
-{
+void logical_and_expression(void) {
 	relational_expression();
 	logical_and_expression_p();
 }
 
 
-void logical_and_expression_p(void)
-{
-	switch (lookahead.code)
-	{
-	case LOG_OP_T:
-		switch (lookahead.attribute.log_op)
-		{
-		case AND:
+void logical_and_expression_p(void) {	
+	if (lookahead.code == LOG_OP_T) {
+		if (lookahead.attribute.log_op == AND){
 			match(LOG_OP_T, AND);
 			relational_expression();
 			logical_and_expression_p();
 			gen_incode("PLATY: Logical AND expression parsed");
-			break;
 		}
 	}
 }
 
 
-void logical_or_expression(void)
-{
+void logical_or_expression(void){
 	logical_and_expression();
 	logical_or_expression_p();
 }
@@ -316,15 +287,13 @@ void logical_or_expression_p(void)
 }
 
 
-void multiplicative_arithmetic_expression(void)
-{
+void multiplicative_arithmetic_expression(void){
 	primary_arithmetic_expression();
 	multiplicative_arithmetic_expression_p();
 }
 
-// LOL
-void multiplicative_arithmetic_expression_p(void)
-{
+
+void multiplicative_arithmetic_expression_p(void){
 	switch (lookahead.code)
 	{
 	case ART_OP_T:
@@ -347,8 +316,7 @@ void multiplicative_arithmetic_expression_p(void)
 }
 
 
-void opt_statements(void)
-{
+void opt_statements(void){
 	switch (lookahead.code)
 	{
 	case KW_T:
@@ -371,8 +339,7 @@ void opt_statements(void)
 }
 
 
-void opt_variable_list(void)
-{
+void opt_variable_list(void){
 	switch (lookahead.code)
 	{
 	case STR_T:
@@ -390,8 +357,7 @@ void opt_variable_list(void)
 }
 
 
-void output_statement(void)
-{
+void output_statement(void){
 	match(KW_T, OUTPUT);
 	match(LPR_T, NO_ATTR);
 	opt_variable_list();
@@ -401,8 +367,7 @@ void output_statement(void)
 }
 
 
-void primary_a_relational_expression(void)
-{
+void primary_a_relational_expression(void){
 	switch (lookahead.code)
 	{
 	case AVID_T:
@@ -420,8 +385,7 @@ void primary_a_relational_expression(void)
 }
 
 
-void primary_arithmetic_expression(void)
-{
+void primary_arithmetic_expression(void){
 	switch (lookahead.code)
 	{
 	case AVID_T:
@@ -445,15 +409,13 @@ void primary_arithmetic_expression(void)
 }
 
 
-void primary_s_relational_expression(void)
-{
+void primary_s_relational_expression(void){
 	primary_string_expression();
 	gen_incode("PLATY: Primary s_relational expression parsed");
 }
 
 
-void primary_string_expression(void)
-{
+void primary_string_expression(void){
 	switch (lookahead.code)
 	{
 	case SVID_T:
@@ -468,16 +430,14 @@ void primary_string_expression(void)
 }
 
 
-void program(void)
-{
+void program(void){
 	match(KW_T, PLATYPUS); match(LBR_T, NO_ATTR); opt_statements();
 	match(RBR_T, NO_ATTR);
 	gen_incode("PLATY: Program parsed");
 }
 
 
-void relational_expression(void)
-{
+void relational_expression(void){
 	switch (lookahead.code)
 	{
 	case AVID_T:
@@ -498,8 +458,7 @@ void relational_expression(void)
 }
 
 
-void relational_expression_p(void)
-{
+void relational_expression_p(void){
 	if (lookahead.code == REL_OP_T)
 	{	
 			match(lookahead.code, lookahead.attribute.arr_op);
@@ -510,8 +469,7 @@ void relational_expression_p(void)
 }
 
 
-void relational_expression_p_str(void)
-{
+void relational_expression_p_str(void){
 	if (lookahead.code == REL_OP_T)
 	{
 			match(lookahead.code, lookahead.attribute.arr_op);
@@ -522,8 +480,7 @@ void relational_expression_p_str(void)
 }
 
 
-void selection_statement(void)
-{
+void selection_statement(void){
 	match(KW_T, IF);
 	match(LPR_T, NO_ATTR);
 	conditional_expression();
@@ -539,8 +496,7 @@ void selection_statement(void)
 }
 
 
-void statement(void)
-{
+void statement(void){
 	switch (lookahead.code)
 	{
 	case AVID_T:
@@ -572,15 +528,13 @@ void statement(void)
 }
 
 
-void statements(void)
-{
+void statements(void){
 	statement();
 	statements_p();
 }
 
 
-void statements_p(void)
-{
+void statements_p(void){
 	switch (lookahead.code)
 	{
 	case KW_T:
@@ -601,19 +555,15 @@ void statements_p(void)
 }
 
 
-void string_expression(void)
-{
+void string_expression(void){
 	primary_string_expression();
 	string_expression_p();
 	gen_incode("PLATY: String expression parsed");
 }
 
 
-void string_expression_p(void)
-{
-	switch (lookahead.code)
-	{
-	case SCC_OP_T:
+void string_expression_p(void){
+	if (lookahead.code == SCC_OP_T){
 		match(SCC_OP_T, NO_ATTR);
 		primary_string_expression();
 		string_expression_p();
