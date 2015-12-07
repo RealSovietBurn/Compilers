@@ -23,6 +23,7 @@
 #include "token.h"
 #include "stable.h" /*Do not remove this line. SiR */
 #include "stable.h" /*Do not remove this line. SiR */
+#include "parser.h"
 /* Input buffer parameters */
 #define INIT_CAPACITY 200 /* initial buffer capacity */
 #define INC_FACTOR 15       /* increment factor */
@@ -46,7 +47,7 @@ Buffer * str_LTBL; /* this buffer implements String Literal Table */
 int scerrnum;     /* run-time error number = 0 by default (ANSI) */
 STD sym_table;    /* Symbol Table Descriptor */
 /*external objects */
-//extern int synerrno /* number of syntax errors reported by the parser */;
+extern int synerrno /* number of syntax errors reported by the parser */;
 extern int line; /* source code line number - defined in scanner.c */
 /* function declarations (prototypes) */
 extern void parser(Buffer * sc_buf);
@@ -196,10 +197,10 @@ if (argc == 5){
 /* Start parsing */
 	printf("\nParsing the source file...\n\n");
 	
-      //  parser(sc_buf);
+        parser(sc_buf);
         
 /* print Symbol Table */    
-/* 
+		
 		if(sym_table.st_size && sort_st){   
            st_print(sym_table);
          if(sort_st){
@@ -208,7 +209,7 @@ if (argc == 5){
            st_print(sym_table);
          }
        }
-*/       
+       
 	return (EXIT_SUCCESS); /* same effect as exit(0) */
 }/*end of main */
 
@@ -253,8 +254,8 @@ void display (Buffer *ptrBuffer){
 
 /* the functions frees the allocated memory */
 void garbage_collect(void){
-//  if(synerrno)
-  //  printf("\nSyntax errors: %d\n",synerrno);
+  if(synerrno)
+    printf("\nSyntax errors: %d\n",synerrno);
   printf("\nCollecting garbage...\n");
   b_destroy(sc_buf);
   b_destroy(str_LTBL);  
