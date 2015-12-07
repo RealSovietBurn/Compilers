@@ -322,7 +322,7 @@ void multiplicative_arithmetic_expression(void)
 	multiplicative_arithmetic_expression_p();
 }
 
-
+// LOL
 void multiplicative_arithmetic_expression_p(void)
 {
 	switch (lookahead.code)
